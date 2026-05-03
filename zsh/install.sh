@@ -93,15 +93,15 @@ fi
 
 # Install plugins
 plugins=(
-    "zsh-completions:https://github.com/zsh-users/zsh-completions.git"
-    "zsh-autosuggestions:https://github.com/zsh-users/zsh-autosuggestions.git"
-    "zsh-syntax-highlighting:https://github.com/zsh-users/zsh-syntax-highlighting.git"
-    "fzf-tab:https://github.com/Aloxaf/fzf-tab.git"
+    "zsh-completions|https://github.com/zsh-users/zsh-completions.git"
+    "zsh-autosuggestions|https://github.com/zsh-users/zsh-autosuggestions.git"
+    "zsh-syntax-highlighting|https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    "fzf-tab|https://github.com/Aloxaf/fzf-tab.git"
 )
 
 for plugin_info in "${plugins[@]}"; do
-    plugin_name="${plugin_info%%:*}"
-    plugin_url="${plugin_info##*:}"
+    plugin_name="${plugin_info%%|*}"
+    plugin_url="${plugin_info#*|}"
     
     if [ ! -d "$ZSH_CUSTOM/plugins/$plugin_name" ]; then
         echo "Installing $plugin_name..."
