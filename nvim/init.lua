@@ -13,6 +13,14 @@ end
 
 local vim = vim
 local Plug = vim.fn['plug#']
+local function safe_require(module)
+	local ok, err = pcall(require, module)
+	if not ok and not tostring(err):match("module '.-' not found:") then
+		vim.schedule(function()
+			vim.notify("Error loading " .. module .. ": " .. err, vim.log.levels.WARN)
+		end)
+	end
+end
 
 vim.g.start_time = vim.fn.reltime()
 vim.loader.enable() -- speed
@@ -48,32 +56,25 @@ require("config.mappings")
 require("config.options")
 require("config.autocmd")
 
-require("plugins.alpha")
--- require("plugins.autopairs")
-require("plugins.barbar")
-require("plugins.colorizer")
-require("plugins.colorscheme")
-require("plugins.comment")
--- require("plugins.fterm")
--- require("plugins.fzf-lua")
-require("plugins.gitsigns")
-require("plugins.lualine")
-require("plugins.nvim-lint")
--- require("plugins.nvim-tree")
-require("plugins.render-markdown")
--- require("plugins.treesitter")
--- require("plugins.twilight")
--- require("plugins.which-key")
+safe_require("plugins.alpha")
+safe_require("plugins.barbar")
+safe_require("plugins.colorizer")
+safe_require("plugins.colorscheme")
+safe_require("plugins.comment")
+safe_require("plugins.gitsigns")
+safe_require("plugins.lualine")
+safe_require("plugins.nvim-lint")
+safe_require("plugins.render-markdown")
 
 vim.defer_fn(function()
 	--defer non-essential configs
-require("plugins.autopairs")
-require("plugins.fterm")
-require("plugins.fzf-lua")
-require("plugins.nvim-tree")
-require("plugins.treesitter")
-require("plugins.twilight")
-require("plugins.which-key")
+	safe_require("plugins.autopairs")
+	safe_require("plugins.fterm")
+	safe_require("plugins.fzf-lua")
+	safe_require("plugins.nvim-tree")
+	safe_require("plugins.treesitter")
+	safe_require("plugins.twilight")
+	safe_require("plugins.which-key")
 end, 100)
 
 load_theme()
