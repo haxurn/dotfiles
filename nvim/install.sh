@@ -1,11 +1,31 @@
 #!/bin/bash
 # Install neovim config and dependencies
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NVIM_DIR="$HOME/.config/nvim"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+link_dir() {
+    local src="$1"
+    local dest="$2"
+    local backup_dir
+
+    mkdir -p "$(dirname "$dest")"
+    if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+        echo "Already linked: $dest -> $src"
+        return
+    fi
+
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+        backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
+        mkdir -p "$backup_dir"
+        mv "$dest" "$backup_dir/$(basename "$dest")"
+        echo "Backed up existing config to $backup_dir/$(basename "$dest")"
+    fi
+
+    ln -sfn "$src" "$dest"
+}
 
 echo "Installing neovim config..."
 
@@ -17,16 +37,13 @@ fi
 
 # Install curl if not present (needed for vim-plug)
 if ! command -v curl &> /dev/null; then
-    echo "Installing curl..."
-    if command -v nix-env &> /dev/null; then
-        nix-env -iA nixpkgs.curl
-    fi
+    echo "curl is required for vim-plug bootstrap. Please install curl first."
+    exit 1
 fi
 
 # Create symlink to config
 echo "Creating symlink to ~/.config/nvim..."
-mkdir -p "$(dirname "$NVIM_DIR")"
-ln -sf "$SCRIPT_DIR" "$NVIM_DIR"
+link_dir "$SCRIPT_DIR" "$NVIM_DIR"
 
 echo ""
 echo "Neovim config installed!"
