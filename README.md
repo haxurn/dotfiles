@@ -1,6 +1,6 @@
 # dotfiles
 
-My dotfiles for tmux, zsh, and neovim.
+My dotfiles for tmux, zsh, neovim, and VSCode.
 
 ## Quick Setup
 
@@ -33,6 +33,13 @@ Then select what you want to install (1-7).
 ### Neovim
 - Run `nvim` and `:PlugInstall`
 
+### VSCode
+- Copy `settings.json` to your VSCode settings folder:
+  - Linux: `~/.config/Code/User/settings.json`
+  - macOS: `~/Library/Application Support/Code/User/settings.json`
+  - Windows: `%APPDATA%\Code\User\settings.json`
+- Or use the **Settings Sync** extension and link this file
+
 ## Keybinds
 
 ### Tmux
@@ -58,5 +65,19 @@ Then select what you want to install (1-7).
 rm ~/.config/tmux/tmux.conf
 rm ~/.zshrc
 rm ~/.config/nvim
+rm ~/.config/Code/User/settings.json
 # Restore backup if needed from ~/.dotfiles_backup/
+```
+
+## Folder Structure
+
+```
+dotfiles/
+├── nvim/           # Neovim config (lua)
+├── tmux/            # Tmux config
+├── zsh/             # Zsh config & plugins
+├── vscode/          # VSCode/VSCodium settings (cross-platform)
+│   └── settings.json
+├── setup.sh         # Installer script
+└── README.md
 ```
