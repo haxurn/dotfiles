@@ -1,7 +1,7 @@
 # dotfiles
 
 Cross-platform (macOS + Linux) dotfiles for zsh, tmux, neovim, git, kitty / ghostty / alacritty,
-lazygit, btop, bat and VS Code. Terminal, tmux, nvim and TUIs share one theme: **Catppuccin Mocha** (VS Code keeps whatever you use).
+lazygit, btop, bat and VS Code. Terminal, tmux and TUIs share one theme: **Catppuccin Mocha**; nvim and VS Code keep their own.
 
 ## Quick setup
 
