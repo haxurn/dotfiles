@@ -1,4 +1,4 @@
---theme="Catppuccin Mocha"
+--theme="gruvbox-dark"
 --style=numbers,changes,header
 --map-syntax "*.conf:INI"
 --map-syntax ".ignore:Git Ignore"

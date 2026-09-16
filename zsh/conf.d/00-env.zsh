@@ -26,7 +26,7 @@ export GOPATH="$HOME/go"
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export BUN_INSTALL="$HOME/.bun"
 export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"   # lazygit: XDG path on mac too
-export BAT_THEME="Catppuccin Mocha"
+export BAT_THEME="gruvbox-dark"
 
 # LS_COLORS (zsh never gets this from /etc/profile on Ubuntu); gnubin provides dircolors on mac
 [[ -z "$LS_COLORS" ]] && (( $+commands[dircolors] )) && eval "$(dircolors -b)"

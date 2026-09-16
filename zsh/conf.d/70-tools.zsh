@@ -1,13 +1,13 @@
 # 70-tools: fzf, zoxide, direnv, runtimes, pagers
 
-# ── fzf (Catppuccin Mocha) ──
+# ── fzf (Gruvbox Dark) ──
 export FZF_DEFAULT_OPTS="
   --height=60% --layout=reverse --border=rounded --info=inline-right
   --prompt='   ' --pointer='' --marker='' --separator='─' --scrollbar='│'
-  --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
-  --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
-  --color=marker:#a6e3a1,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8
-  --color=border:#45475a,separator:#45475a,scrollbar:#45475a
+  --color=bg+:#3c3836,bg:#282828,spinner:#fb4934,hl:#fabd2f
+  --color=fg:#ebdbb2,header:#fabd2f,info:#8ec07c,pointer:#fb4934
+  --color=marker:#b8bb26,fg+:#ebdbb2,prompt:#83a598,hl+:#fabd2f
+  --color=border:#504945,separator:#504945,scrollbar:#504945
 "
 if (( $+commands[fd] )); then
   export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'

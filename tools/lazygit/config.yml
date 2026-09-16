@@ -4,18 +4,18 @@ gui:
   border: rounded
   showRandomTip: false
   showBottomLine: false
-  theme:                       # Catppuccin Mocha, blue accent
-    activeBorderColor: ["#89b4fa", bold]
-    inactiveBorderColor: ["#a6adc8"]
-    optionsTextColor: ["#89b4fa"]
-    selectedLineBgColor: ["#313244"]
-    cherryPickedCommitBgColor: ["#45475a"]
-    cherryPickedCommitFgColor: ["#89b4fa"]
-    unstagedChangesColor: ["#f38ba8"]
-    defaultFgColor: ["#cdd6f4"]
-    searchingActiveBorderColor: ["#f9e2af"]
+  theme:                       # Gruvbox Dark
+    activeBorderColor: ["#fabd2f", bold]
+    inactiveBorderColor: ["#928374"]
+    optionsTextColor: ["#83a598"]
+    selectedLineBgColor: ["#3c3836"]
+    cherryPickedCommitBgColor: ["#504945"]
+    cherryPickedCommitFgColor: ["#fabd2f"]
+    unstagedChangesColor: ["#fb4934"]
+    defaultFgColor: ["#ebdbb2"]
+    searchingActiveBorderColor: ["#fe8019"]
   authorColors:
-    "*": "#b4befe"
+    "*": "#d3869b"
 git:
   paging:
     colorArg: always

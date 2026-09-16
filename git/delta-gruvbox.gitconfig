@@ -1,0 +1,26 @@
+# delta feature: Gruvbox Dark (pairs with bat's built-in gruvbox-dark syntax theme)
+[delta "gruvbox-dark"]
+	dark = true
+	syntax-theme = gruvbox-dark
+	file-style = "#fabd2f" bold
+	file-decoration-style = "#504945" ul
+	hunk-header-style = file line-number syntax
+	hunk-header-decoration-style = "#504945" box
+	hunk-header-file-style = "#83a598"
+	hunk-header-line-number-style = "#fabd2f"
+	line-numbers-left-style = "#665c54"
+	line-numbers-right-style = "#665c54"
+	line-numbers-minus-style = "#fb4934"
+	line-numbers-plus-style = "#b8bb26"
+	line-numbers-zero-style = "#665c54"
+	minus-style = syntax "#3c2826"
+	minus-emph-style = syntax "#5b2f2a"
+	plus-style = syntax "#2b3327"
+	plus-emph-style = syntax "#3e4a2a"
+	commit-style = "#fe8019" bold
+	commit-decoration-style = "#504945" box
+	blame-palette = "#282828 #3c3836"
+	merge-conflict-begin-symbol = ▼
+	merge-conflict-end-symbol = ▲
+	merge-conflict-ours-diff-header-style = "#fabd2f" bold
+	merge-conflict-theirs-diff-header-style = "#fabd2f" bold

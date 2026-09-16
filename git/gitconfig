@@ -2,7 +2,7 @@
 [include]
 	path = ~/.gitconfig.local
 [include]
-	path = ~/.config/git/delta-catppuccin.gitconfig
+	path = ~/.config/git/delta-gruvbox.gitconfig
 [init]
 	defaultBranch = main
 [core]
@@ -16,7 +16,7 @@
 	navigate = true
 	line-numbers = true
 	hyperlinks = true
-	features = catppuccin-mocha
+	features = gruvbox-dark
 [diff]
 	algorithm = histogram
 	colorMoved = default
