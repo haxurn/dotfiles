@@ -1,5 +1,5 @@
 # ghostty (linked dir: ~/.config/ghostty). File must be named `config`.
-theme = catppuccin-mocha
+theme = Gruvbox Dark
 font-family = JetBrainsMono Nerd Font
 font-size = 13
 

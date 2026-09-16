@@ -35,6 +35,6 @@ fi
 
 link_file "$SCRIPT_DIR/gitconfig"                  "$HOME/.gitconfig"
 link_file "$SCRIPT_DIR/ignore"                     "$HOME/.config/git/ignore"
-link_file "$SCRIPT_DIR/delta-catppuccin.gitconfig" "$HOME/.config/git/delta-catppuccin.gitconfig"
+link_file "$SCRIPT_DIR/delta-gruvbox.gitconfig" "$HOME/.config/git/delta-gruvbox.gitconfig"
 
 log_ok "git ready (identity in $LOCAL_CFG)"
