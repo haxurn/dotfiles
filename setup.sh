@@ -177,10 +177,12 @@ install_vscode() {
     else
         dest="$HOME/.config/Code/User/settings.json"
     fi
+    # Copied, never linked: VS Code rewrites this file itself (extension state), and an existing
+    # settings.json is left untouched so personal themes and extension keys survive.
     if [[ -d "$(dirname "$dest")" ]]; then
-        link_file "$DOTFILES_DIR/vscode/settings.json" "$dest"
+        copy_if_missing "$DOTFILES_DIR/vscode/settings.json" "$dest"
     else
-        log_warn "VS Code user dir not found ($(dirname "$dest")); skipping. Link vscode/settings.json manually."
+        log_warn "VS Code user dir not found ($(dirname "$dest")); skipping. Copy vscode/settings.json manually."
     fi
 }
 
