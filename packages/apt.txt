@@ -1,0 +1,28 @@
+# packages/apt.txt -- Ubuntu 24.04 / Debian 12. Generic names; lib/pkg.sh maps them.
+zsh
+tmux
+git
+gh
+curl
+ca-certificates
+build-tools        # -> build-essential (blink.cmp / treesitter compile)
+unzip
+fzf                # 0.44 on 24.04: zsh falls back to /usr/share/doc/fzf/examples/*.zsh
+fd                 # -> fd-find; ensure_bin_alias fdfind fd
+ripgrep
+bat                # installs as batcat; ensure_bin_alias batcat bat
+eza                # Ubuntu 24.04 yes; Debian 12 no -> ensure_eza
+zoxide
+btop
+shellcheck
+wl-clipboard
+xclip
+fontconfig
+node               # -> nodejs npm (tree-sitter-cli, mason)
+direnv
+# Not in apt or too old -> lib/fallback.sh:
+#   neovim (apt 0.9.5)      -> ensure_neovim
+#   lazygit                 -> ensure_lazygit
+#   delta                   -> ensure_delta
+#   tree-sitter             -> ensure_tree_sitter (npm)
+#   JetBrainsMono Nerd Font -> ensure_nerd_font

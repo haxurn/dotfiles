@@ -1,16 +1,21 @@
-require('lint').linters_by_ft = { --some of these need to be installed from package manager
-  lua = {'luac'},
-  python = {'ruff'},
-  sh = {'bash'},
-  c = {'cppcheck'},
-  rust = {'clippy'},
-  css = {'stylelint'},
-  html = {'htmlhint'},
+-- linters only for what LSP does not cover; each guarded on the binary being installed
+local lint = require("lint")
+
+local wanted = {
+	sh = { "shellcheck" },
+	bash = { "shellcheck" },
+	zsh = { "shellcheck" },
+	dockerfile = { "hadolint" },
 }
 
--- Some linters require a file to be saved to disk, others support linting stdin input.
--- For such linters you could also define a more aggressive autocmd,
--- for example on the InsertLeave or TextChanged events.
--- To get the filetype of a buffer you can run := vim.bo.filetype.
+local by_ft = {}
+for ft, linters in pairs(wanted) do
+	local available = {}
+	for _, l in ipairs(linters) do
+		if vim.fn.executable(l) == 1 then table.insert(available, l) end
+	end
+	if #available > 0 then by_ft[ft] = available end
+end
+lint.linters_by_ft = by_ft
 
--- lints on close, see autocmd
+-- runs on BufWritePost (see config/autocmd.lua)

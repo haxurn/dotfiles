@@ -19,7 +19,9 @@ Active in any file with a language server (python, rust, go, c/c++, js/ts, lua, 
 | `gy` | type definition |
 | `<leader>rn` | rename symbol (project-wide) |
 | `<leader>ca` | code action (quick-fix / import) |
-| `<leader>cf` | format buffer |
+| `<leader>cf` | format buffer (conform: stylua / shfmt / prettierd / ruff / gofmt, LSP fallback) |
+| `<leader>cF` | toggle format-on-save (off by default) |
+| `<leader>ci` | toggle inlay hints |
 | `[d` / `]d` | prev / next diagnostic (jumps + shows msg) |
 | `<leader>e` | show full diagnostic for the line |
 
@@ -87,7 +89,7 @@ Inside fzf: `Ctrl-f/b` page, `F4` toggle preview, `Shift-up/down` scroll preview
 `<leader>t` toggle. Inside: `a` create (`/`=dir), `d` delete, `r` rename, `x`/`c`/`p` cut/copy/paste, `?` help.
 
 ## Terminal
-`<leader>z` float term · `<leader>H` htop · `Esc` close (keeps session)
+`<leader>z` float term · `Alt-z` toggle it (works from inside too) · `<leader>hg` lazygit · `<leader>H` btop · `Ctrl-\ Ctrl-\` terminal → normal mode (Esc is left for TUIs)
 
 ## Comments
 `gcc` line · `gc`+motion (e.g. `gcap`) · `gc` (visual) · `gco`/`gcO` below/above · `gb`+motion block
@@ -118,11 +120,38 @@ Inside fzf: `Ctrl-f/b` page, `F4` toggle preview, `Shift-up/down` scroll preview
 
 ## Theme / files / misc
 `<leader>p` cycle theme · `<leader>P` PlugInstall · `<leader>R` reload config
-`<leader>d` duplicate file · `<leader>mv` move file · `<leader>x` chmod +x · `<leader>u` open URL under cursor
+`<leader>d` duplicate file · `<leader>mv` move file · `<leader>x` chmod +x · `gx` open URL/path under cursor · `<leader>u` undotree
 
 ## CSV (decisive)
-`<leader>csa` / `<leader>csA` align / clear · `[c` / `]c` prev / next column
+`<leader>csa` / `<leader>csA` align / clear · `[,` / `],` prev / next column
 
 ## Maintenance commands
 `:Mason` server installer UI · `:checkhealth` diagnose · `:PlugUpdate` update plugins
 `:Trouble` lists · `:Lazy`?(no — vim-plug: `:PlugStatus`)
+
+---
+
+## Text objects & motions (treesitter-textobjects)
+| Key | Action |
+|---|---|
+| `af` / `if` | around / inside function |
+| `ac` / `ic` | around / inside class |
+| `aa` / `ia` | around / inside argument |
+| `]f` / `[f` | next / prev function start |
+| `]c` / `[c` | next / prev class start |
+
+Combine with operators: `dif` delete function body, `yaa` yank argument, `vac` select class.
+
+## fzf extras
+| Key | Action |
+|---|---|
+| `<leader>b` | buffers |
+| `<leader>o` | recent files (cwd) |
+| `<leader>Fg` | git status (changed files) |
+| `<leader>Fs` | document symbols |
+| `<leader>Fk` | keymaps |
+| `<leader>Fd` | diagnostics |
+| `<leader>Fr` | resume last picker |
+
+## Folds
+`zc` / `zo` / `za` close / open / toggle (treesitter folds, all open on load) · `zM` / `zR` close / open all.

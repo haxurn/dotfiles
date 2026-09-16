@@ -1,0 +1,14 @@
+# global gitignore: OS / editor junk only, never project artifacts
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+*.swp
+*~
+Session.vim
+.nvim.lua
+.exrc
+.direnv/
+.idea/
+**/.claude/settings.local.json
+**/.openclaude/settings.local.json

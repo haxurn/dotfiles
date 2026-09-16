@@ -1,0 +1,6 @@
+# ports: listening TCP/UDP sockets, cross-platform
+if [[ "$OSTYPE" == darwin* ]]; then
+  lsof -iTCP -sTCP:LISTEN -nP
+else
+  ss -tulnp
+fi

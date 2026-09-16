@@ -1,64 +1,49 @@
-#!/bin/bash
-# Install tmux plugins (run this after cloning dotfiles)
-
+#!/usr/bin/env bash
+# Install tmux config, TPM and plugins.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_DIR="${HOME}/.tmux/plugins"
+# shellcheck source=../lib/init.sh
+source "$SCRIPT_DIR/../lib/init.sh"
 
-link_file() {
-    local src="$1"
-    local dest="$2"
-    local backup_dir
+PLUGIN_DIR="$HOME/.config/tmux/plugins"
 
-    mkdir -p "$(dirname "$dest")"
-    if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-        echo "Already linked: $dest -> $src"
-        return
+has git || pkg_install git
+has tmux || pkg_install tmux
+has tmux || die "tmux could not be installed"
+
+run mkdir -p "$PLUGIN_DIR" "$HOME/.local/share/tmux/resurrect"
+
+if [[ ! -d "$PLUGIN_DIR/tpm" ]]; then
+    log_info "cloning TPM"
+    run git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$PLUGIN_DIR/tpm"
+fi
+
+link_file "$SCRIPT_DIR/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+link_dir  "$SCRIPT_DIR/scripts"   "$HOME/.config/tmux/scripts"
+
+# Install plugins headless (idempotent: TPM skips already-cloned plugins).
+if [[ -x "$PLUGIN_DIR/tpm/bin/install_plugins" && "${DRY_RUN:-0}" != 1 ]]; then
+    if TMUX_PLUGIN_MANAGER_PATH="$PLUGIN_DIR/" "$PLUGIN_DIR/tpm/bin/install_plugins" >/dev/null 2>&1; then
+        log_ok "tmux plugins installed"
+    else
+        log_warn "TPM headless install failed; run prefix + I inside tmux"
     fi
+fi
 
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
-        mkdir -p "$backup_dir"
-        mv "$dest" "$backup_dir/$(basename "$dest")"
-        echo "Backed up existing config to $backup_dir/$(basename "$dest")"
+# macOS: Homebrew tmux needs the tmux-256color terminfo entry; ncurses ships a modern one.
+if is_macos && ! infocmp tmux-256color >/dev/null 2>&1; then
+    log_info "installing tmux-256color terminfo"
+    pkg_install ncurses
+    t="$(mktemp)"
+    if "$(brew_prefix)/opt/ncurses/bin/infocmp" -x tmux-256color > "$t" 2>/dev/null; then
+        run tic -x -o "$HOME/.terminfo" "$t"
+    else
+        log_warn "could not export tmux-256color terminfo; TERM inside tmux may fall back"
     fi
-
-    ln -sf "$src" "$dest"
-}
-
-command -v git >/dev/null || { echo "git is required."; exit 1; }
-command -v tmux >/dev/null || echo "tmux is not installed yet; install it with your package manager."
-
-mkdir -p "$PLUGIN_DIR"
-
-# Clone TPM if not exists
-if [ ! -d "$PLUGIN_DIR/tpm" ]; then
-    git clone --depth=1 https://github.com/tmux-plugins/tpm "$PLUGIN_DIR/tpm"
+    rm -f "$t"
 fi
 
-# Install other plugins
-# vim-tmux-navigator
-if [ ! -d "$PLUGIN_DIR/vim-tmux-navigator" ]; then
-    git clone --depth=1 https://github.com/christoomey/vim-tmux-navigator "$PLUGIN_DIR/vim-tmux-navigator"
-fi
+[[ -d "$HOME/.tmux/plugins" ]] && log_warn "legacy ~/.tmux/plugins exists; plugins now live in $PLUGIN_DIR (safe to delete the old dir)"
 
-# tmux-resurrect
-if [ ! -d "$PLUGIN_DIR/tmux-resurrect" ]; then
-    git clone --depth=1 https://github.com/tmux-plugins/tmux-resurrect "$PLUGIN_DIR/tmux-resurrect"
-fi
-
-# tmux-continuum
-if [ ! -d "$PLUGIN_DIR/tmux-continuum" ]; then
-    git clone --depth=1 https://github.com/tmux-plugins/tmux-continuum "$PLUGIN_DIR/tmux-continuum"
-fi
-
-# tmux-cpu-mem-monitor
-if [ ! -d "$PLUGIN_DIR/tmux-cpu-mem-monitor" ]; then
-    git clone --depth=1 https://github.com/hendrikmi/tmux-cpu-mem-monitor "$PLUGIN_DIR/tmux-cpu-mem-monitor"
-fi
-
-# Create symlink to config
-link_file "${SCRIPT_DIR}/tmux.conf" "${HOME}/.config/tmux/tmux.conf"
-
-echo "Tmux plugins installed! Press prefix + I (Ctrl-a then I) to install plugins in tmux."
+log_ok "tmux ready. Reload with prefix + r; prefix + I installs any missing plugins."

@@ -1,0 +1,5 @@
+# fkill [signal]: fzf-pick processes to kill (TAB multi-select)
+local pids
+pids=$(ps -eo pid,user,%cpu,%mem,comm --sort=-%cpu | sed 1d \
+  | fzf -m --header='kill: TAB to multi-select' | awk '{print $1}')
+[[ -n "$pids" ]] && echo "$pids" | xargs kill -"${1:-15}"

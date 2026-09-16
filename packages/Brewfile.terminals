@@ -1,0 +1,5 @@
+# packages/Brewfile.terminals -- casks, installed only with --terminals
+cask "font-jetbrains-mono-nerd-font"
+cask "kitty"
+cask "ghostty"
+cask "alacritty"

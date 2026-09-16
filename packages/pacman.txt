@@ -1,0 +1,24 @@
+zsh
+tmux
+git
+gh                 # -> github-cli
+curl
+build-tools        # -> base-devel
+unzip
+neovim
+tree-sitter        # -> tree-sitter-cli
+node               # -> nodejs npm
+fzf
+fd
+ripgrep
+bat
+eza
+zoxide
+btop
+lazygit
+delta              # -> git-delta
+shellcheck
+wl-clipboard
+xclip
+nerd-font          # -> ttf-jetbrains-mono-nerd
+direnv

@@ -1,0 +1,3 @@
+kitty
+alacritty
+# ghostty: no apt package. setup.sh offers `snap install ghostty --classic` when snap exists.

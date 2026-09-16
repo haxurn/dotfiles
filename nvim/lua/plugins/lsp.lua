@@ -11,6 +11,7 @@ local servers = {
 	"lua_ls", "pyright", "bashls",
 	"rust_analyzer", "gopls", "clangd",
 	"ts_ls", "html", "cssls", "eslint",
+	"jsonls", "yamlls", "dockerls", "ruff",
 	"jdtls",
 }
 
@@ -35,6 +36,18 @@ require("mason-lspconfig").setup({
 	ensure_installed = servers,
 	automatic_enable = true,
 })
+
+-- formatters / linters used by conform + nvim-lint, installed through mason without extra plugins
+local tools = { "stylua", "shfmt", "prettierd", "clang-format", "shellcheck", "hadolint" }
+local ok_reg, reg = pcall(require, "mason-registry")
+if ok_reg then
+	reg.refresh(function()
+		for _, name in ipairs(tools) do
+			local ok_pkg, pkg = pcall(reg.get_package, name)
+			if ok_pkg and not pkg:is_installed() then pkg:install() end
+		end
+	end)
+end
 
 -- diagnostics look: signs + underline, NO virtual_text (tiny-inline-diagnostic draws it)
 vim.diagnostic.config({
@@ -69,7 +82,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		m("K", vim.lsp.buf.hover, "hover docs")
 		m("<leader>rn", vim.lsp.buf.rename, "rename symbol")
 		m("<leader>ca", vim.lsp.buf.code_action, "code action")
-		m("<leader>cf", function() vim.lsp.buf.format({ async = true }) end, "format")
+		m("<leader>ci", function()
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = b }), { bufnr = b })
+		end, "toggle inlay hints")
 		m("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "prev diagnostic")
 		m("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "next diagnostic")
 		m("<leader>e", vim.diagnostic.open_float, "line diagnostics")

@@ -1,5 +1,6 @@
 require("fzf-lua").setup{
 	file_icon_padding = ' ',
+	fzf_colors = true, -- inherit catppuccin from FZF_DEFAULT_OPTS
 --   -- MISC GLOBAL SETUP OPTIONS, SEE BELOW
 --   -- fzf_bin = ...,
 --   winopts = { ...  },     -- UI Options

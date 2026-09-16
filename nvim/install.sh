@@ -1,63 +1,29 @@
-#!/bin/bash
-# Install neovim config and dependencies
-
+#!/usr/bin/env bash
+# Install neovim config (+ neovim / tree-sitter CLI when missing or too old).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../lib/init.sh
+source "$SCRIPT_DIR/../lib/init.sh"
+
 NVIM_DIR="$HOME/.config/nvim"
 
-link_dir() {
-    local src="$1"
-    local dest="$2"
-    local backup_dir
+require git curl
+ensure_neovim
+nvim_is_recent || die "neovim >= 0.11 is required (found: $(nvim --version 2>/dev/null | head -n1 || echo none))"
+ensure_tree_sitter
+has unzip || pkg_install unzip
+has npm   || pkg_install node
 
-    mkdir -p "$(dirname "$dest")"
-    if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
-        echo "Already linked: $dest -> $src"
-        return
-    fi
-
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
-        mkdir -p "$backup_dir"
-        mv "$dest" "$backup_dir/$(basename "$dest")"
-        echo "Backed up existing config to $backup_dir/$(basename "$dest")"
-    fi
-
-    ln -sfn "$src" "$dest"
-}
-
-echo "Installing neovim config..."
-
-# Install neovim if not present
-if ! command -v nvim &> /dev/null; then
-    echo "Neovim not found. Please install it first."
-    exit 1
-fi
-
-# Install curl if not present (needed for vim-plug)
-if ! command -v curl &> /dev/null; then
-    echo "curl is required for vim-plug bootstrap. Please install curl first."
-    exit 1
-fi
-
-# nvim-treesitter (main branch) needs the tree-sitter CLI to compile parsers
-if ! command -v tree-sitter &> /dev/null; then
-    echo "tree-sitter CLI not found; attempting install..."
-    if command -v npm &> /dev/null; then
-        npm install -g tree-sitter-cli
-    elif command -v cargo &> /dev/null; then
-        cargo install tree-sitter-cli
-    else
-        echo "WARNING: install tree-sitter-cli manually (npm i -g tree-sitter-cli) or syntax parsers won't build."
-    fi
-fi
-
-# Create symlink to config
-echo "Creating symlink to ~/.config/nvim..."
+# Whole config dir is the symlink; an existing clone is moved to the backup dir intact.
 link_dir "$SCRIPT_DIR" "$NVIM_DIR"
 
-echo ""
-echo "Neovim config installed!"
-echo "Run 'nvim' and then ':PlugInstall' to install plugins."
-echo "Or restart neovim and plugins will auto-install on first run."
+if [[ "${DRY_RUN:-0}" != 1 ]] && confirm "Install neovim plugins headless now?" y; then
+    if nvim --headless "+PlugInstall --sync" +qa >/dev/null 2>&1; then
+        log_ok "plugins installed"
+    else
+        log_warn "headless PlugInstall failed; plugins will install on first launch"
+    fi
+fi
+
+log_ok "neovim ready. First launch installs LSP servers via mason (watch :Mason)."

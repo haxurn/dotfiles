@@ -1,0 +1,2 @@
+# mkcd <dir>: create and enter
+mkdir -p -- "$@" && cd -- "${@[-1]}"
