@@ -108,11 +108,11 @@ ensure_tree_sitter() {
 # Linux only; on macOS the cask in Brewfile.terminals handles it.
 ensure_nerd_font() {
     is_linux || return 0
-    if fc-list 2>/dev/null | grep -qi "JetBrainsMono.*Nerd Font"; then
+    local d="$HOME/.local/share/fonts/JetBrainsMonoNerd" tmp
+    if fc-list 2>/dev/null | grep -qi "JetBrainsMono.*Nerd Font" || ls "$d"/*.ttf >/dev/null 2>&1; then
         log_ok "JetBrainsMono Nerd Font present"
         return 0
     fi
-    local d="$HOME/.local/share/fonts/JetBrainsMonoNerd" tmp
     log_info "installing JetBrainsMono Nerd Font"
     tmp="$(mktemp -d)"
     run curl -fsSL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz -o "$tmp/font.tar.xz"
