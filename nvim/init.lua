@@ -1,4 +1,4 @@
--- bread's neovim config
+-- haxurn's neovim config (based on BreadOnPenguins/nvim)
 -- keymaps are in lua/config/mappings.lua
 -- install a patched font & ensure your terminal supports glyphs
 -- enjoy :D
