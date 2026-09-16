@@ -10,8 +10,10 @@ LOCAL_OPT="$HOME/.local/opt"
 linux_triple() { if is_arm; then echo aarch64-unknown-linux-gnu; else echo x86_64-unknown-linux-gnu; fi; }
 
 gh_latest_tag() {
-    curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
-        | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1
+    # capture first, then filter: avoids SIGPIPE under pipefail when head/grep exit early
+    local json
+    json="$(curl -fsSL "https://api.github.com/repos/$1/releases/latest")" || return 1
+    printf '%s\n' "$json" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | sed -n 1p
 }
 
 # gh_release_tarball <url> <bin-name>: download tar.gz, find executable, install to ~/.local/bin
@@ -37,7 +39,9 @@ gh_release_tarball() {
 # nvim >= 0.11 required (vim.lsp.config). apt on Ubuntu 24.04 ships 0.9.5.
 nvim_is_recent() {
     has nvim || return 1
-    nvim --version 2>/dev/null | head -n 1 | grep -qE 'v0\.(1[1-9]|[2-9][0-9])|v[1-9]\.'
+    local v
+    v="$(nvim --version 2>/dev/null)"
+    [[ "${v%%$'\n'*}" =~ v0\.(1[1-9]|[2-9][0-9])|v[1-9]\. ]]
 }
 
 ensure_neovim() {
@@ -109,7 +113,8 @@ ensure_tree_sitter() {
 ensure_nerd_font() {
     is_linux || return 0
     local d="$HOME/.local/share/fonts/JetBrainsMonoNerd" tmp
-    if fc-list 2>/dev/null | grep -qi "JetBrainsMono.*Nerd Font" || ls "$d"/*.ttf >/dev/null 2>&1; then
+    # shellcheck disable=SC2143  # grep -q would SIGPIPE fc-list under pipefail
+    if [[ -n "$(fc-list 2>/dev/null | grep -i "JetBrainsMono.*Nerd Font")" ]] || ls "$d"/*.ttf >/dev/null 2>&1; then
         log_ok "JetBrainsMono Nerd Font present"
         return 0
     fi
