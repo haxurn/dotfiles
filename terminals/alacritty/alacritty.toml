@@ -1,6 +1,6 @@
 # alacritty (linked dir: ~/.config/alacritty)
 [general]
-import = ["~/.config/alacritty/themes/gruvbox-dark.toml"]
+import = ["~/.config/alacritty/themes/alacritty-default.toml"]
 
 [font]
 size = 12.0

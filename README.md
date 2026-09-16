@@ -1,7 +1,7 @@
 # dotfiles
 
 Cross-platform (macOS + Linux) dotfiles for zsh, tmux, neovim, git, kitty / ghostty / alacritty,
-lazygit, btop, bat and VS Code. Terminal, tmux, fzf and TUIs use **Gruvbox Dark** to match the nvim colorscheme (VS Code keeps its own).
+lazygit, btop, bat and VS Code. Terminals use Alacritty's default palette (kitty and ghostty replicate it); tmux, fzf and TUIs use **Gruvbox Dark** to match the nvim colorscheme. VS Code keeps its own.
 
 ## Quick setup
 
@@ -51,7 +51,7 @@ dotfiles/
 ├── tmux/                    # tmux.conf + scripts/sessionizer.sh
 ├── nvim/                    # vim-plug config: LSP, blink.cmp, treesitter, conform, fzf-lua, ...
 ├── git/                     # gitconfig (delta, aliases), ignore; identity in ~/.gitconfig.local
-├── terminals/               # kitty, ghostty, alacritty (+ vendored gruvbox themes)
+├── terminals/               # kitty, ghostty, alacritty (same font + palette)
 ├── tools/                   # lazygit, btop, bat
 └── vscode/settings.json
 ```
