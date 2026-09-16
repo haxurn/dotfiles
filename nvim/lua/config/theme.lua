@@ -5,7 +5,7 @@
 local theme_file = vim.fn.stdpath("data") .. "/saved_theme"
 
 local themes = { --add more themes here, if installed
-	{ "catppuccin-mocha", "catppuccin" },
+	{ "catppuccin", "catppuccin" }, -- flavour set in plugins/colorscheme.lua
 	{ "gruvbox", "gruvbox" },
 	{ "pywal16", "catppuccin" }, -- pywal16 uses catppuccin lualine theme
 }
@@ -15,7 +15,7 @@ local current_theme_index = 1
 local function apply(colorscheme, lualine_theme)
 	local ok = pcall(vim.cmd.colorscheme, colorscheme)
 	if not ok then
-		pcall(vim.cmd.colorscheme, "catppuccin-mocha")
+		pcall(vim.cmd.colorscheme, "catppuccin")
 		lualine_theme = "catppuccin"
 	end
 	local ok_ll, lualine = pcall(require, "lualine")

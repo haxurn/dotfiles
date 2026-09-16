@@ -1,7 +1,7 @@
 # dotfiles
 
 Cross-platform (macOS + Linux) dotfiles for zsh, tmux, neovim, git, kitty / ghostty / alacritty,
-lazygit, btop, bat and VS Code. One theme everywhere: **Catppuccin Mocha**.
+lazygit, btop, bat and VS Code. Terminal, tmux and TUIs share one theme: **Catppuccin Mocha**; nvim and VS Code keep their own.
 
 ## Quick setup
 
@@ -72,8 +72,8 @@ Both are untracked (`*.local` in `.gitignore`).
 - **nvim**: first launch installs plugins, then mason downloads language servers + formatters (`:Mason`).
   Needs `tree-sitter` CLI (installed by setup) and a Nerd Font (installed by `--terminals`).
 - **git**: `git config user.email` must come from `~/.gitconfig.local`.
-- **VS Code**: `--vscode` links `settings.json`; install the *Catppuccin* + *Catppuccin Icons* extensions.
-  Same file works for Cursor / Kiro (`~/.config/Cursor/User/settings.json`).
+- **VS Code**: `--vscode` copies `settings.json` only when none exists (never overwrites, never links:
+  VS Code writes extension state into it). Theme is left to you. Same file works for Cursor / Kiro.
 
 ## Keybinds
 

@@ -10,8 +10,10 @@ LOCAL_OPT="$HOME/.local/opt"
 linux_triple() { if is_arm; then echo aarch64-unknown-linux-gnu; else echo x86_64-unknown-linux-gnu; fi; }
 
 gh_latest_tag() {
-    curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
-        | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1
+    # capture first, then filter: avoids SIGPIPE under pipefail when head/grep exit early
+    local json
+    json="$(curl -fsSL "https://api.github.com/repos/$1/releases/latest")" || return 1
+    printf '%s\n' "$json" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | sed -n 1p
 }
 
 # gh_release_tarball <url> <bin-name>: download tar.gz, find executable, install to ~/.local/bin
@@ -37,7 +39,9 @@ gh_release_tarball() {
 # nvim >= 0.11 required (vim.lsp.config). apt on Ubuntu 24.04 ships 0.9.5.
 nvim_is_recent() {
     has nvim || return 1
-    nvim --version 2>/dev/null | head -n 1 | grep -qE 'v0\.(1[1-9]|[2-9][0-9])|v[1-9]\.'
+    local v
+    v="$(nvim --version 2>/dev/null)"
+    [[ "${v%%$'\n'*}" =~ v0\.(1[1-9]|[2-9][0-9])|v[1-9]\. ]]
 }
 
 ensure_neovim() {
@@ -108,11 +112,12 @@ ensure_tree_sitter() {
 # Linux only; on macOS the cask in Brewfile.terminals handles it.
 ensure_nerd_font() {
     is_linux || return 0
-    if fc-list 2>/dev/null | grep -qi "JetBrainsMono.*Nerd Font"; then
+    local d="$HOME/.local/share/fonts/JetBrainsMonoNerd" tmp
+    # shellcheck disable=SC2143  # grep -q would SIGPIPE fc-list under pipefail
+    if [[ -n "$(fc-list 2>/dev/null | grep -i "JetBrainsMono.*Nerd Font")" ]] || ls "$d"/*.ttf >/dev/null 2>&1; then
         log_ok "JetBrainsMono Nerd Font present"
         return 0
     fi
-    local d="$HOME/.local/share/fonts/JetBrainsMonoNerd" tmp
     log_info "installing JetBrainsMono Nerd Font"
     tmp="$(mktemp -d)"
     run curl -fsSL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz -o "$tmp/font.tar.xz"
@@ -135,4 +140,16 @@ ensure_fzf_git() {
     local d="$HOME/.local/share/fzf-git.sh"
     [[ -d "$d" ]] && return 0
     run git clone -q --depth=1 https://github.com/junegunn/fzf-git.sh "$d"
+}
+
+# fzf >= 0.48 provides `fzf --zsh`; apt on Ubuntu 24.04 ships 0.44. Install latest to ~/.local/bin.
+ensure_fzf() {
+    if has fzf && fzf --zsh >/dev/null 2>&1; then return 0; fi
+    if is_macos; then pkg_install fzf; return; fi
+    local tag ver arch
+    tag="$(gh_latest_tag junegunn/fzf)" || true
+    [[ -n "$tag" ]] || { log_warn "could not resolve fzf release; keeping distro fzf"; return 0; }
+    ver="${tag#v}"
+    if is_arm; then arch=arm64; else arch=amd64; fi
+    gh_release_tarball "https://github.com/junegunn/fzf/releases/download/${tag}/fzf-${ver}-linux_${arch}.tar.gz" fzf
 }

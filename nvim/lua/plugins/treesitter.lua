@@ -1,7 +1,7 @@
 -- nvim-treesitter (main branch) under vim-plug: install parsers, start highlight + indent per buffer.
 local langs = {
 	"bash", "c", "cpp", "css", "diff", "dockerfile", "git_config", "git_rebase", "gitcommit",
-	"gitignore", "go", "html", "java", "javascript", "json", "jsonc", "lua", "markdown",
+	"gitignore", "go", "html", "java", "javascript", "json", "lua", "markdown",
 	"markdown_inline", "python", "query", "regex", "rust", "sql", "toml", "tsx", "typescript",
 	"vim", "vimdoc", "yaml",
 }
