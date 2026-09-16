@@ -33,6 +33,7 @@ clone_if_missing https://github.com/Aloxaf/fzf-tab.git                    "$ZSH_
 
 # CLI tools (no-ops when already present; setup.sh normally installs these via manifests)
 has fzf    || pkg_install fzf
+ensure_fzf
 has eza    || ensure_eza
 has bat    || { pkg_install bat; ensure_bin_alias batcat bat; }
 has fd     || { pkg_install fd;  ensure_bin_alias fdfind fd; }

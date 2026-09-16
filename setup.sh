@@ -147,7 +147,7 @@ install_packages() {
     fi
     # Component-scoped fallbacks for what the manager lacks / ships too old.
     if (( SEL_ZSH )); then
-        ensure_eza; ensure_zoxide
+        ensure_fzf; ensure_eza; ensure_zoxide
         ensure_bin_alias batcat bat
         ensure_bin_alias fdfind fd
         ensure_fzf_git

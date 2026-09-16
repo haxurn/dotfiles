@@ -10,6 +10,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq >/dev/null && apt-get install -y -qq git curl ca-certificates sudo locales >/dev/null
 cp -r /src /root/dotfiles && cd /root/dotfiles
+export PATH="$HOME/.local/bin:$PATH"   # where the GitHub-release fallbacks install
 echo "### first run"
 ./setup.sh --all -y
 echo "### asserts"

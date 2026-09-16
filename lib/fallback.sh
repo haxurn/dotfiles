@@ -136,3 +136,15 @@ ensure_fzf_git() {
     [[ -d "$d" ]] && return 0
     run git clone -q --depth=1 https://github.com/junegunn/fzf-git.sh "$d"
 }
+
+# fzf >= 0.48 provides `fzf --zsh`; apt on Ubuntu 24.04 ships 0.44. Install latest to ~/.local/bin.
+ensure_fzf() {
+    if has fzf && fzf --zsh >/dev/null 2>&1; then return 0; fi
+    if is_macos; then pkg_install fzf; return; fi
+    local tag ver arch
+    tag="$(gh_latest_tag junegunn/fzf)" || true
+    [[ -n "$tag" ]] || { log_warn "could not resolve fzf release; keeping distro fzf"; return 0; }
+    ver="${tag#v}"
+    if is_arm; then arch=arm64; else arch=amd64; fi
+    gh_release_tarball "https://github.com/junegunn/fzf/releases/download/${tag}/fzf-${ver}-linux_${arch}.tar.gz" fzf
+}
