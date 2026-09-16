@@ -1,7 +1,7 @@
 # ghostty (linked dir: ~/.config/ghostty). File must be named `config`.
 theme = Gruvbox Dark
-font-family = JetBrainsMono Nerd Font
-font-size = 13
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 12
 
 cursor-style = block
 cursor-style-blink = true
