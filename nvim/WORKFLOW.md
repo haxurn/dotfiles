@@ -141,7 +141,7 @@ Esc      clear search highlight
 <leader>hs   stage hunk            <leader>hr  discard hunk
 <leader>hb   blame line            <leader>hd  diff file
 ```
-Commit: `<leader>z` terminal → `git commit` → `Esc` to close (keeps session).
+Commit: `<leader>hg` lazygit (or `<leader>z` terminal → `git commit`) → `Alt-z` / `q` to close.
 
 ## 13. Macros (record once, replay N)
 

@@ -1,0 +1,5 @@
+# msfs <query>: metasploit search with the last keyword highlighted (msf6 dropped inline highlight)
+# usage: msfs type:exploit android
+local q="$*" kw
+kw="${q##* }"; kw="${kw##*:}"
+msfconsole -qx "search $q; exit" 2>/dev/null | grep --color=always -iE "${kw}|"

@@ -1,0 +1,5 @@
+# gcof: fzf checkout a local or remote branch
+local b
+b=$(git branch -a --sort=-committerdate --format='%(refname:short)' | grep -v HEAD \
+  | fzf --preview 'git log --oneline --graph --color=always -20 {}') || return
+git switch "${b#origin/}" 2>/dev/null || git checkout -t "$b"

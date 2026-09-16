@@ -1,0 +1,22 @@
+# packages/Brewfile -- CLI toolchain for macOS.  brew bundle --file=packages/Brewfile
+brew "zsh"
+brew "tmux"
+brew "git"
+brew "gh"
+brew "curl"
+brew "coreutils"      # GNU ls/head/date; .zshrc prepends gnubin so aliases behave like Linux
+brew "neovim"         # >= 0.11 required by nvim/lua/plugins/lsp.lua
+brew "tree-sitter"    # nvim-treesitter main compiles parsers with the CLI
+brew "node"           # mason installs ts_ls/pyright/eslint/prettierd via npm
+brew "fzf"
+brew "fd"
+brew "ripgrep"
+brew "bat"
+brew "eza"
+brew "zoxide"
+brew "btop"
+brew "lazygit"
+brew "git-delta"
+brew "shellcheck"
+brew "unzip"
+brew "direnv"

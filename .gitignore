@@ -1,0 +1,7 @@
+# runtime state written by tools
+nvim/lua/config/saved_theme
+tools/btop/btop.log
+# machine-specific (copied, never linked)
+*.local
+# OS junk
+.DS_Store

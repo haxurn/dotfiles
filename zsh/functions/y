@@ -1,0 +1,7 @@
+# y: yazi with cd-on-exit
+(( $+commands[yazi] )) || { print -u2 "yazi not installed"; return 1 }
+local tmp cwd
+tmp=$(mktemp -t yazi-cwd.XXXXXX)
+yazi "$@" --cwd-file="$tmp"
+cwd=$(<"$tmp"); rm -f -- "$tmp"
+[[ -n "$cwd" && "$cwd" != "$PWD" ]] && cd -- "$cwd"

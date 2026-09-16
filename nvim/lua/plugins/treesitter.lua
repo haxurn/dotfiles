@@ -1,11 +1,9 @@
--- nvim-treesitter (main branch) run directly under vim-plug.
--- NOTE: the old version returned a lazy.nvim spec table, which vim-plug never
--- executed -> treesitter highlighting/indent never actually started. Fixed here.
-
+-- nvim-treesitter (main branch) under vim-plug: install parsers, start highlight + indent per buffer.
 local langs = {
-	"bash", "c", "cpp", "css", "go", "html", "java", "javascript", "json",
-	"lua", "markdown", "markdown_inline", "python", "rust", "tsx",
-	"typescript", "vim", "vimdoc", "yaml", "toml", "diff", "query",
+	"bash", "c", "cpp", "css", "diff", "dockerfile", "git_config", "git_rebase", "gitcommit",
+	"gitignore", "go", "html", "java", "javascript", "json", "jsonc", "lua", "markdown",
+	"markdown_inline", "python", "query", "regex", "rust", "sql", "toml", "tsx", "typescript",
+	"vim", "vimdoc", "yaml",
 }
 
 local ok, ts = pcall(require, "nvim-treesitter")
@@ -13,22 +11,23 @@ if ok and type(ts.install) == "function" then
 	pcall(ts.install, langs) -- async; installs missing parsers
 end
 
--- start highlighting + treesitter indent on these filetypes
+-- treesitter indent is worse than the builtin for these
+local no_ts_indent = { markdown = true, yaml = true, python = true }
+
+local function attach(buf)
+	if not pcall(vim.treesitter.start, buf) then return end
+	local ft = vim.bo[buf].filetype
+	if not no_ts_indent[ft] then
+		vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+	end
+end
+
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = {
-		"bash", "sh", "c", "cpp", "css", "go", "html", "java", "javascript",
-		"javascriptreact", "json", "lua", "markdown", "python", "rust",
-		"typescript", "typescriptreact", "vim", "yaml", "toml", "diff",
-	},
-	callback = function()
-		pcall(vim.treesitter.start)
-		vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-	end,
+	group = vim.api.nvim_create_augroup("dotfiles_treesitter", { clear = true }),
+	callback = function(ev) attach(ev.buf) end,
 })
 
--- catch buffers already loaded before this ran (and once async parsers finish)
+-- buffers loaded before this ran
 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-	if vim.api.nvim_buf_is_loaded(buf) then
-		pcall(vim.treesitter.start, buf)
-	end
+	if vim.api.nvim_buf_is_loaded(buf) then attach(buf) end
 end

@@ -1,0 +1,22 @@
+# best-effort Fedora list
+zsh
+tmux
+git
+gh
+curl
+build-tools        # -> gcc make
+unzip
+neovim
+node
+fzf
+fd                 # -> fd-find
+ripgrep
+bat
+eza
+zoxide
+btop
+shellcheck         # -> ShellCheck
+wl-clipboard
+xclip
+direnv
+# lazygit, delta, tree-sitter, nerd font -> lib/fallback.sh

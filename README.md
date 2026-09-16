@@ -1,116 +1,142 @@
 # dotfiles
 
-My dotfiles for tmux, zsh, neovim, and VSCode.
+Cross-platform (macOS + Linux) dotfiles for zsh, tmux, neovim, git, kitty / ghostty / alacritty,
+lazygit, btop, bat and VS Code. One theme everywhere: **Catppuccin Mocha**.
 
-Neovim is a lightweight vim-plug setup with LSP error-checking, completion (blink.cmp),
-treesitter, inline diagnostics, flash jumps, surround, git hunks, and an animated dashboard.
-
-## Quick Setup
+## Quick setup
 
 ```bash
 git clone https://github.com/haxurn/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-./setup.sh
+./setup.sh            # interactive menu
+./setup.sh --all -y   # everything, no prompts
 ```
 
-Then select what you want to install (1-7).
+On a fresh Mac `setup.sh` offers to install Xcode Command Line Tools and Homebrew first, then runs
+`brew bundle` on `packages/Brewfile`. On Ubuntu/Debian it uses apt (`packages/apt.txt`) and falls
+back to GitHub releases for what apt lacks or ships too old (neovim, lazygit, delta, tree-sitter,
+Nerd Font). Arch (`pacman.txt`) and Fedora (`dnf.txt`) are best-effort.
+
+Existing files are never deleted: they move to `~/.dotfiles_backup/<timestamp>/` keeping their
+path relative to `$HOME`.
 
 ## Options
 
-```bash
-./setup.sh --all     # Install everything
-./setup.sh --tmux    # Tmux only
-./setup.sh --zsh     # Zsh only
-./setup.sh --nvim    # Neovim only
+```
+./setup.sh [components] [options]
+
+Components:  --all  --zsh  --tmux  --nvim  --git  --terminals  --tools  --vscode
+Options:     --packages-only   install packages, link nothing
+             --no-packages     link/configure only
+             --dry-run         print every action, change nothing
+             -y, --yes         assume yes (implied when stdin is not a tty)
 ```
 
-## After Install
+Each `<component>/install.sh` also runs standalone.
 
-### Tmux
-- Press `Ctrl+a` then `I` to install plugins
+## Layout
 
-### Zsh
-- Restart terminal or `source ~/.zshrc`
-- Run `p10k configure` to customize prompt
+```
+dotfiles/
+├── setup.sh                 # dispatcher: flags, menu, mac bootstrap, packages, components
+├── lib/                     # shared bash (bash 3.2 safe): log, os detect, link, pkg, fallbacks
+├── packages/                # Brewfile, apt.txt, pacman.txt, dnf.txt (+ *-terminals)
+├── scripts/check.sh         # shellcheck + syntax + parse + dry-run
+├── scripts/docker-smoke.sh  # end-to-end on ubuntu:24.04
+├── zsh/
+│   ├── .zshrc               # ~25 lines; sources conf.d/ + ~/.zshrc.local
+│   ├── conf.d/NN-*.zsh      # env, tmux, omz, options, completion, keybinds, aliases, tools, integrations, plugins
+│   ├── functions/           # autoloaded: mkcd fkill gcof ports msfs y
+│   └── zshrc.local.example  # copied to ~/.zshrc.local once; machine-specific stuff lives there
+├── tmux/                    # tmux.conf + scripts/sessionizer.sh
+├── nvim/                    # vim-plug config: LSP, blink.cmp, treesitter, conform, fzf-lua, ...
+├── git/                     # gitconfig (delta, aliases), ignore; identity in ~/.gitconfig.local
+├── terminals/               # kitty, ghostty, alacritty (+ vendored mocha themes)
+├── tools/                   # lazygit, btop, bat
+└── vscode/settings.json
+```
 
-### Neovim
-- Run `nvim` — vim-plug bootstraps and `:PlugInstall` runs automatically on first launch
-- **Requires the `tree-sitter` CLI** for syntax parsers: `npm i -g tree-sitter-cli`
-  (or `cargo install tree-sitter-cli`)
-- On first launch **mason** auto-installs language servers in the background — watch `:Mason`.
-  Restart once they finish for full error-checking.
-- A patched **Nerd Font** is required for icons (sidebar, tabs, dashboard).
-- Full key reference lives in `nvim/CHEATSHEET.md`; power-user workflows in `nvim/WORKFLOW.md`.
+## Machine-specific config
 
-### VSCode
-- Copy `settings.json` to your VSCode settings folder:
-  - Linux: `~/.config/Code/User/settings.json`
-  - macOS: `~/Library/Application Support/Code/User/settings.json`
-  - Windows: `%APPDATA%\Code\User\settings.json`
-- Or use the **Settings Sync** extension and link this file
+| File | Purpose |
+|---|---|
+| `~/.zshrc.local` | extra PATH, SDKs, secrets, tool hooks. Set `DOTFILES_NO_TMUX=1` to stop tmux auto-attach. |
+| `~/.gitconfig.local` | `user.name`, `user.email`, signing key. Seeded from your old `~/.gitconfig` on first run. |
+
+Both are untracked (`*.local` in `.gitignore`).
+
+## After install
+
+- **zsh**: `exec zsh`. tmux auto-attaches session `main` (not under ssh / VS Code / Warp / Kiro).
+- **tmux**: plugins install headless; `prefix + I` (Ctrl-a I) if any are missing.
+- **nvim**: first launch installs plugins, then mason downloads language servers + formatters (`:Mason`).
+  Needs `tree-sitter` CLI (installed by setup) and a Nerd Font (installed by `--terminals`).
+- **git**: `git config user.email` must come from `~/.gitconfig.local`.
+- **VS Code**: `--vscode` links `settings.json`; install the *Catppuccin* + *Catppuccin Icons* extensions.
+  Same file works for Cursor / Kiro (`~/.config/Cursor/User/settings.json`).
 
 ## Keybinds
 
-### Tmux
+### zsh
 | Key | Action |
-|-----|--------|
-| `Ctrl+a` | Prefix |
-| `\` | Split horizontal |
-| `-` | Split vertical |
-| `h/j/k/l` | Navigate panes |
-| `r` | Reload config |
+|---|---|
+| `Ctrl-r` / `Ctrl-t` / `Alt-c` | fzf history / files / cd (tmux popup) |
+| `Ctrl-g Ctrl-{f,b,t,r,h,s}` | fzf-git: files / branches / tags / remotes / hashes / stashes |
+| `Tab` | fzf-tab completion with previews |
+| `Up` / `Down` | history substring search |
+| `Alt-←` / `Alt-→` | word navigation |
+| `mkcd` `fkill` `gcof` `ports` `ts` `y` | functions: mkdir+cd, fzf kill, fzf branch, listening ports, tmux sessionizer, yazi |
 
-### Neovim
-
-Leader = `Space`. Press `Space` and wait for the which-key popup. Full list in `nvim/CHEATSHEET.md`.
-
-**Navigation**
+### tmux (prefix `Ctrl-a`)
 | Key | Action |
-|-----|--------|
-| `Space+f` / `Space+g` | find files / grep |
-| `Space+t` | file tree (icons) · `nvim .` also opens it |
-| `s` + chars | flash: jump anywhere on screen |
-| `Shift+h/l` · `Alt+1..9` | prev/next · jump to buffer N |
-| `Ctrl+h/j/k/l` | navigate splits |
+|---|---|
+| `\` / `-` | split horizontal / vertical (current path) |
+| `h/j/k/l` · `H/J/K/L` | navigate · resize panes |
+| `m` | zoom pane |
+| `Alt-\`` | toggle floating scratch session |
+| `g` / `b` | lazygit / btop popup |
+| `f` / `s` | sessionizer (projects) / session picker |
+| `Shift-←/→` · `Tab` | prev/next window · last window |
+| `v` `y` (copy mode) | select / yank to system clipboard (tmux-yank) |
+| `r` | reload config |
 
-**LSP / code**
+### neovim (leader `Space`)
+Full reference in [`nvim/CHEATSHEET.md`](nvim/CHEATSHEET.md), workflows in [`nvim/WORKFLOW.md`](nvim/WORKFLOW.md).
+
 | Key | Action |
-|-----|--------|
-| `K` · `gd` · `gr` | hover · definition · references |
-| `Ctrl+o` | jump back |
-| `Space+ca` · `Space+rn` | code action · rename symbol |
-| `[d` / `]d` · `Space+T` | prev/next diagnostic · error list |
+|---|---|
+| `<leader>f` / `g` / `b` / `o` | files / grep / buffers / recent |
+| `<leader>t` · `s` + chars | file tree · flash jump |
+| `K` · `gd` · `gr` · `<leader>ca` · `<leader>rn` | hover · definition · references · code action · rename |
+| `<leader>cf` / `cF` / `ci` | format · toggle format-on-save · toggle inlay hints |
+| `<leader>hg` · `<leader>H` · `Alt-z` | lazygit · btop · toggle terminal |
+| `<leader>u` | undotree |
+| `af` `if` `ac` `ic` `aa` `ia` · `]f` `[f` | treesitter text objects · next/prev function |
 | `Tab` | accept completion |
 
-**Edit / git**
-| Key | Action |
-|-----|--------|
-| `ysiw"` · `cs"'` · `ds(` | surround: add / change / delete |
-| `gcc` | toggle comment |
-| `Alt+j/k` | move line up/down |
-| `]h` / `[h` · `Space+hs` | next/prev git hunk · stage hunk |
+## Verify
+
+```bash
+scripts/check.sh          # shellcheck, bash/zsh syntax, tmux parse, lua load, dry-run
+scripts/docker-smoke.sh   # full install on ubuntu:24.04, run twice for idempotency
+```
+
+macOS checklist (no CI for it yet): fresh user → `./setup.sh --all` → accept CLT + Homebrew →
+`exec zsh` (no p10k warnings, `ls` is eza, `ports` uses lsof, `open .` works) → tmux
+`display -p '#{default-shell}'` shows zsh, copy-mode `y` then Cmd-V pastes → nvim `:checkhealth`
+clipboard = pbcopy, `Alt-j` moves a line (option-as-alt) → rerun setup: everything reports "linked".
 
 ## Uninstall
 
 ```bash
-rm ~/.config/tmux/tmux.conf
-rm ~/.zshrc
-rm ~/.config/nvim
-rm ~/.config/Code/User/settings.json
-# Restore backup if needed from ~/.dotfiles_backup/
+ls ~/.dotfiles_backup/        # pick the timestamp
+rm ~/.zshrc ~/.p10k.zsh ~/.gitconfig ~/.config/{nvim,tmux/tmux.conf,kitty,ghostty,alacritty,lazygit}
+cp -r ~/.dotfiles_backup/<ts>/. ~/   # restore
 ```
 
-## Folder Structure
+## Contributing rules
 
-```
-dotfiles/
-├── nvim/           # Neovim config (lua) — LSP, completion, treesitter, flash, git, animated dashboard
-│   ├── CHEATSHEET.md   # full key reference
-│   └── WORKFLOW.md     # end-to-end power-user guide
-├── tmux/            # Tmux config
-├── zsh/             # Zsh config & plugins
-├── vscode/          # VSCode/VSCodium settings (cross-platform)
-│   └── settings.json
-├── setup.sh         # Installer script
-└── README.md
-```
+- Shell: bash 3.2 syntax only (macOS `/bin/bash`). No `declare -A`, `mapfile`, `${var,,}`, `readlink -f`, `sed -i`, `head -n -1`.
+- Every mutating command goes through `run` so `--dry-run` stays honest.
+- Every `ensure_*` fallback is a no-op when the tool already exists.
+- `scripts/check.sh` must pass before committing.

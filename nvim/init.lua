@@ -30,7 +30,7 @@ Plug('nvim-tree/nvim-web-devicons') --pretty icons
 Plug('folke/which-key.nvim') --mappings popup
 Plug('romgrk/barbar.nvim') --bufferline
 Plug('goolord/alpha-nvim') --pretty startup
-Plug('nvim-treesitter/nvim-treesitter') --improved syntax
+Plug('nvim-treesitter/nvim-treesitter', { ['branch'] = 'main', ['do'] = ':TSUpdate' }) --improved syntax
 Plug('mfussenegger/nvim-lint') --async linter
 Plug('nvim-tree/nvim-tree.lua') --file explorer
 Plug('windwp/nvim-autopairs') --autopairs 
@@ -59,6 +59,9 @@ Plug('folke/trouble.nvim') --diagnostics/symbols list
 Plug('folke/todo-comments.nvim') --highlight TODO/FIX/HACK
 Plug('folke/flash.nvim') --jump anywhere on screen
 Plug('kylechui/nvim-surround') --add/change/delete surrounding pairs
+Plug('nvim-treesitter/nvim-treesitter-textobjects', { ['branch'] = 'main' }) --syntax-aware text objects
+Plug('stevearc/conform.nvim') --formatters
+Plug('mbbill/undotree') --undo history tree
 
 vim.call('plug#end')
 
@@ -105,6 +108,8 @@ require("plugins.todo")
 require("plugins.trouble")
 require("plugins.flash")
 require("plugins.surround")
+require("plugins.textobjects")
+require("plugins.conform")
 end, 100)
 
 load_theme()

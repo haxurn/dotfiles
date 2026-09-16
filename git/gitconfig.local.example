@@ -1,0 +1,10 @@
+# ~/.gitconfig.local — identity + machine-specific git config. Never committed.
+[user]
+	name = Your Name
+	email = you@example.com
+# [user]
+# 	signingkey = ~/.ssh/id_ed25519.pub
+# [gpg]
+# 	format = ssh
+# [commit]
+# 	gpgsign = true

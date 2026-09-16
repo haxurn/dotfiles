@@ -1,0 +1,22 @@
+# ~/.zshrc.local — machine-specific config. Copied once by zsh/install.sh, never overwritten, untracked.
+# Sourced after conf.d/*.zsh and before ~/.p10k.zsh. Uncomment what applies to this machine.
+
+# ── Android SDK ─────────────────────────────────────────────────────────
+# export ANDROID_HOME="$HOME/Android/Sdk"                      # mac: "$HOME/Library/Android/sdk"
+# path=("$ANDROID_HOME/emulator" "$ANDROID_HOME/platform-tools" "$ANDROID_HOME/cmdline-tools/latest/bin" $path)
+# alias start-android='nohup emulator -avd Pixel_9_Pro_XL -gpu swiftshader_indirect -no-snapshot-load -wipe-data > ~/emulator.log 2>&1 &'
+
+# ── Reverse-engineering / pentest tools ────────────────────────────────
+# path=("$HOME/tools/dex2jar/bin" "$HOME/tools/jadx/bin" $path)
+
+# ── Google Cloud SDK ───────────────────────────────────────────────────
+# [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && . "$HOME/google-cloud-sdk/path.zsh.inc"
+# [[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && . "$HOME/google-cloud-sdk/completion.zsh.inc"
+
+# ── Misc CLIs ──────────────────────────────────────────────────────────
+# path=("$HOME/.resend/bin" "$HOME/.grok/bin" $path)          # grok completions: fpath handled in 20-omz.zsh
+# [[ -r "$HOME/.config/secrets/supermemory.env" ]] && source "$HOME/.config/secrets/supermemory.env"
+# alias claude-mem='bun "$HOME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+
+# ── Overrides ──────────────────────────────────────────────────────────
+# export DOTFILES_NO_TMUX=1        # disable tmux auto-attach on this machine
