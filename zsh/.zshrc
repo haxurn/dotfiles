@@ -27,3 +27,7 @@ for _f in "$DOTFILES_ZSH"/conf.d/*.zsh(N); do source "$_f"; done; unset _f
 [[ -t 1 && -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 [[ -n $ZPROF ]] && zprof
+
+# Keep the file's exit status at 0. Without this, the final conditional above
+# decides it, so `source ~/.zshrc` reports failure and the prompt shows 1.
+true
