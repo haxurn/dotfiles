@@ -46,8 +46,12 @@ export _ZO_DOCTOR=0           # silences the p10k instant-prompt false positive
 
 # ── runtimes ──
 [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]] && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+# mise owns node/python/java/go versions when installed; fall back to fnm (node only)
+# so the two never both hook the node shim.
 FNM_PATH="$HOME/.local/share/fnm"
-if [[ -d "$FNM_PATH" ]]; then
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh)"
+elif [[ -d "$FNM_PATH" ]]; then
   path=("$FNM_PATH" $path)
   eval "$(fnm env --shell zsh --use-on-cd --version-file-strategy=recursive)"
 elif (( $+commands[fnm] )); then
