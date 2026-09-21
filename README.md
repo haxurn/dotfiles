@@ -1,7 +1,21 @@
 # dotfiles
 
 Cross-platform (macOS + Linux) dotfiles for zsh, tmux, neovim, git, kitty / ghostty / alacritty,
-lazygit, btop, bat and VS Code. Terminals use Alacritty's default palette (kitty and ghostty replicate it); tmux, fzf and TUIs use **Gruvbox Dark** to match the nvim colorscheme. VS Code keeps its own.
+lazygit, btop, bat and VS Code. Terminals use **Alacritty's default palette** (kitty and ghostty
+replicate it); tmux, fzf and the TUIs use **Gruvbox Dark** to match the nvim colorscheme. VS Code
+keeps its own.
+
+Each terminal ships three palettes under `terminals/<term>/themes/` — `alacritty-default` (active),
+`gruvbox-dark` and `catppuccin-frappe`. Switch by changing one line:
+
+| Terminal | File | Line |
+|---|---|---|
+| kitty | `terminals/kitty/kitty.conf` | `include themes/<name>.conf` |
+| ghostty | `terminals/ghostty/config` | `theme = <name>` |
+| alacritty | `terminals/alacritty/alacritty.toml` | `import = [".../themes/<name>.toml"]` |
+
+nvim cycles its own colorscheme separately (gruvbox / catppuccin / pywal16); the choice persists in
+`$XDG_DATA_HOME/nvim/saved_theme`, outside the repo.
 
 ## Quick setup
 
