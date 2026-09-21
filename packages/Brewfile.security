@@ -1,0 +1,123 @@
+# packages/Brewfile.security -- security tooling, only with --security
+brew "gitleaks"       # secret scanning in git history
+brew "trufflehog"     # secret scanning with live credential verification
+brew "semgrep"        # SAST rules across the repo
+brew "trivy"          # CVEs in containers, filesystems and IaC
+brew "grype"          # CVEs from an SBOM
+brew "syft"           # generates the SBOM grype consumes
+brew "osv-scanner"    # OSV database lockfile scanning
+brew "cosign"         # sigstore signing/verification of artifacts
+brew "checkov"        # IaC misconfiguration scanning
+brew "apktool"
+brew "jadx"           # needs a JDK; JAVA_HOME is set in zsh/conf.d/00-env.zsh
+brew "dex2jar"
+brew "nmap"
+brew "masscan"
+brew "ffuf"
+brew "gobuster"
+brew "feroxbuster"
+brew "nuclei"
+brew "httpx"          # projectdiscovery's, not the python HTTP client of the same name
+brew "subfinder"
+brew "amass"
+brew "sqlmap"
+brew "nikto"
+brew "hydra"
+brew "wireshark"      # formula is CLI-only (tshark); the GUI is a separate cask
+brew "radare2"
+brew "ghidra"         # pulls openjdk@21
+brew "binwalk"
+brew "hashcat"
+brew "john-jumbo"     # supersedes the `john` formula; do not install both
+brew "hexyl"
+brew "mkcert"         # locally-trusted dev TLS certs
+# ── web recon / bug bounty (projectdiscovery + friends) ──
+brew "dnsx"           # dns toolkit
+brew "naabu"          # fast port scanner
+brew "katana"         # crawler
+brew "gau"            # getallurls: fetch known urls from wayback/otx
+brew "dalfox"         # xss scanner
+brew "arjun"          # http param discovery
+brew "tlsx"           # tls grabber
+brew "cariddi"        # crawl for endpoints/secrets
+# ── exploitation ──
+brew "exploitdb"      # searchsploit
+# ── cracking support ──
+brew "name-that-hash" # identify hash types
+brew "hcxtools"       # wifi handshake conversion for hashcat
+brew "crunch"         # wordlist generator
+brew "medusa"         # parallel network brute-forcer
+# ── binary RE / malware / CTF ──
+brew "yara"           # pattern matching for malware triage
+brew "capstone"       # disassembly framework
+brew "rizin"          # radare2 fork; pairs with the cutter cask
+brew "gdb"            # for pwndbg/gef workflows
+# ── reverse engineering / pwn ──
+brew "patchelf"       # patch ELF interpreter/rpath for pwn challenges
+brew "qemu"           # run + debug other-arch binaries (arm/mips ELF on this mac)
+brew "nasm"           # x86 assembler
+brew "unicorn"        # CPU emulation framework
+brew "keystone"       # assembler framework (pairs with capstone)
+brew "z3"             # SMT solver; angr/claripy backend
+brew "checksec"       # ELF mitigations (RELRO/NX/PIE/canary)
+brew "radamsa"        # mutation fuzzer
+brew "retdec"         # retargetable decompiler
+brew "binutils"       # gobjdump/greadelf etc (GNU, not the mac stubs)
+# ── GUI apps ──
+cask "burp-suite"     # web proxy (Community); needs a JDK (have one)
+cask "cutter"         # rizin GUI for reverse engineering
+# metasploit: brew cask disabled 2026-09-01 (gatekeeper). Use the official
+#   installer (https://github.com/rapid7/metasploit-framework) or docker:
+#   docker run --rm -it metasploitframework/metasploit-framework
+# ── wifi (see the wifi note below: capture/injection is Linux-only on this mac) ──
+brew "aircrack-ng"    # wep/wpa cracking suite (the cracker works; capture needs an adapter)
+brew "reaver"         # WPS pin attack (needs monitor mode -> external adapter/Linux)
+brew "cowpatty"       # wpa-psk dictionary attack against captured handshakes
+# hcxtools + hashcat (installed above) convert and crack PMKID/handshakes -- that
+# part works natively and GPU-accelerated on Apple Silicon.
+# ── network security ──
+cask "wireshark-app"  # the Wireshark GUI (the `wireshark` formula is tshark/CLI only)
+brew "bettercap"      # MITM / network attack framework
+brew "ettercap"       # classic MITM (ARP poisoning, filters)
+cask "mitmproxy"      # intercepting HTTP(S) proxy (mitmweb/mitmdump also on CLI)
+brew "tcpreplay"      # replay captured pcaps onto the wire
+brew "ngrep"          # grep across live network traffic
+brew "socat"          # multipurpose socket relay
+brew "sslscan"        # enumerate TLS ciphers/versions
+brew "testssl"        # thorough TLS/SSL server tester
+brew "fierce"         # DNS recon / zone-transfer + brute
+brew "zmap"           # internet-wide single-port scanner
+brew "arp-scan"       # layer-2 host discovery
+brew "macchanger"     # spoof MAC addresses
+brew "proxychains-ng" # force tcp through a proxy chain
+brew "chisel"         # tcp/udp tunnel over http (pivoting)
+# ── active directory ──
+brew "neo4j"          # bloodhound's graph database backend
+cask "bloodhound"     # AD attack-path GUI (BloodHound CE); needs neo4j running
+# Not in brew -> python, via `uv tool install`:
+#   frida-tools  objection  pwntools  impacket  volatility3
+#   ropper   -> uv tool install --python 3.11 ropper   (filebytes uses ast.Str, gone in 3.12)
+#   AD kit   -> certipy-ad bloodhound-ce ldapdomaindump adidnsdump pywerview
+#               coercer ldeep minikerberos   (put rustup/bin on PATH; some build rust exts)
+#   angr     -> uv tool install angr   (symbolic execution)
+#   net kit  -> scapy sslyze dnsrecon   (uv tool install)
+#   netexec  -> PATH=$(brew --prefix rustup)/bin:$PATH \
+#               uv tool install --python 3.12 git+https://github.com/Pennyw0rth/NetExec
+#               (a dep builds a rust ext; needs cargo on PATH, and py3.12 not 3.13)
+# Not in brew -> `go install` (go toolchain from --devtools):
+#   gowitness  waybackurls  hakrawler
+#   kerbrute -> go install github.com/ropnop/kerbrute@latest  (the real one; pypi kerbrute differs)
+# Not in brew -> `cargo install` (rustup from --devtools):
+#   ropr        (fast ROP gadget finder)   pwninit  (auto-setup pwn challenges)
+# Not in brew -> `gem install` on mise ruby (system 2.6 too old):
+#   one_gadget  seccomp-tools
+# WiFi on Apple Silicon: the internal card cannot do reliable monitor mode or
+#   packet injection, and macOS removed the `airport` capture util. What works
+#   NATIVELY: crack captured handshakes/PMKID (hashcat + hcxtools + aircrack-ng),
+#   and single-channel monitor capture via Wireshark. What needs LINUX + a
+#   supported USB adapter (or a docker linux guest with USB passthrough):
+#   airodump/aireplay injection, wifite, hcxdumptool, kismet, mdk4, bully.
+# GDB enhancer -> GEF single script at ~/.gdbinit-gef.py (see README).
+#   NB: on Apple Silicon gdb needs codesigning and cannot debug arm64-macOS
+#   binaries well; real pwn debugging is done in a linux docker/qemu guest.
+# Not in brew -> `gem install --user-install evil-winrm`  (WinRM shell)
