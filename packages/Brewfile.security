@@ -72,7 +72,8 @@ cask "cutter"         # rizin GUI for reverse engineering
 # ── wifi (see the wifi note below: capture/injection is Linux-only on this mac) ──
 brew "aircrack-ng"    # wep/wpa cracking suite (the cracker works; capture needs an adapter)
 brew "reaver"         # WPS pin attack (needs monitor mode -> external adapter/Linux)
-brew "cowpatty"       # wpa-psk dictionary attack against captured handshakes
+brew "pixiewps"       # Pixie-Dust WPS offline attack (also a reaver dep)
+# cowpatty (wpa dict attack) is not in brew; build from source if needed.
 # hcxtools + hashcat (installed above) convert and crack PMKID/handshakes -- that
 # part works natively and GPU-accelerated on Apple Silicon.
 # ── network security ──
