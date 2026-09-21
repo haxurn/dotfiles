@@ -5,7 +5,7 @@
   // "workbench.iconTheme": null,
 
   // ==================== Editor Font & Experience ====================
-  "editor.fontFamily": "JetBrains Mono, 'Fira Code', Menlo, Monaco, monospace",
+  "editor.fontFamily": "'JetBrainsMono Nerd Font', 'JetBrains Mono', Menlo, Monaco, monospace",
   "editor.fontSize": 15,
   "editor.fontLigatures": true,
   "editor.lineHeight": 1.65,
@@ -29,11 +29,12 @@
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.defaultProfile.windows": "PowerShell",
-  "terminal.integrated.fontFamily": "'FiraCode Nerd Font', JetBrains Mono, monospace",
+  "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font Mono', Menlo, monospace",
   "terminal.integrated.fontSize": 14,
   "terminal.integrated.lineHeight": 1.3,
   "terminal.integrated.scrollback": 15000,
   "terminal.integrated.cursorBlinkingStyle": "smooth",
+  "terminal.integrated.minimumContrastRatio": 1,
 
   // ==================== Quality of Life ====================
   "files.trimTrailingWhitespace": true,
