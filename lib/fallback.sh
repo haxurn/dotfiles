@@ -244,3 +244,49 @@ ensure_ctf_venv() {
         || log_warn "ctf venv package install incomplete"
     return 0
 }
+
+# Ghidra: install from the GitHub release, not the brew formula -- the formula
+# depends on openjdk@21 whose ghcr.io bottle is unreliable, and Ghidra is just a
+# Java app in a zip that runs on any JDK 21+. Lands in ~/.local/opt/ghidra_*,
+# launched via ~/.local/bin/ghidra. macOS + Linux; no-op if already installed.
+ensure_ghidra() {
+    has ghidra && return 0
+    local existing=""; local d
+    for d in "$HOME/.local/opt"/ghidra_*/; do [[ -d "$d" ]] && { existing="$d"; break; }; done
+    [[ -n "$existing" ]] && { log_ok "ghidra present: $existing"; return 0; }
+    require curl unzip
+    local url zip dir d
+    url="$(gh_latest_tag NationalSecurityAgency/ghidra >/dev/null 2>&1; \
+           curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest \
+           | sed -n 's/.*"browser_download_url": *"\([^"]*\.zip\)".*/\1/p' | head -1)"
+    [[ -n "$url" ]] || { log_warn "could not resolve ghidra release"; return 0; }
+    zip="$HOME/.local/opt/ghidra.zip"
+    run mkdir -p "$HOME/.local/opt" "$LOCAL_BIN"
+    log_info "downloading ghidra (large): $url"
+    run curl -fsSL --retry 5 --retry-all-errors -o "$zip" "$url" || { log_warn "ghidra download failed"; return 0; }
+    run unzip -q "$zip" -d "$HOME/.local/opt/" && run rm -f "$zip"
+    for d in "$HOME/.local/opt"/ghidra_*/; do [[ -d "$d" ]] && { dir="$d"; break; }; done
+    [[ -n "$dir" ]] && run ln -sf "${dir}ghidraRun" "$LOCAL_BIN/ghidra"
+    # Apple Silicon (and macOS x86, linux arm) ship no prebuilt decompiler, so
+    # build the natives. Gradle can't run under JDK 27, so build with JDK 21 via
+    # mise if present; then copy the built binaries into the runtime os/ dir.
+    if is_macos && [[ ! -x "$dir/Ghidra/Features/Decompiler/os/mac_arm_64/decompile" ]]; then
+        local jdk21=""
+        has mise && jdk21="$(mise where java@temurin-21 2>/dev/null)"
+        [[ -z "$jdk21" ]] && has mise && { run mise install java@temurin-21; jdk21="$(mise where java@temurin-21 2>/dev/null)"; }
+        if [[ -x "$jdk21/bin/java" ]]; then
+            log_info "building ghidra native decompiler (JDK 21)"
+            ( cd "$dir/support/gradle" && JAVA_HOME="$jdk21" PATH="$jdk21/bin:$PATH" run ./gradlew buildNatives )
+            local dec="$dir/Ghidra/Features/Decompiler"
+            [[ -f "$dec/build/os/mac_arm_64/decompile" ]] && {
+                run mkdir -p "$dec/os/mac_arm_64"
+                run cp "$dec/build/os/mac_arm_64/decompile" "$dec/build/os/mac_arm_64/sleigh" "$dec/os/mac_arm_64/"
+                run chmod +x "$dec/os/mac_arm_64/decompile" "$dec/os/mac_arm_64/sleigh"
+            }
+        else
+            log_warn "ghidra: no JDK 21 for native build; decompiler unavailable until built"
+        fi
+    fi
+    log_ok "ghidra installed; launch with: ghidra"
+    return 0
+}

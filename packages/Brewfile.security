@@ -25,7 +25,9 @@ brew "nikto"
 brew "hydra"
 brew "wireshark"      # formula is CLI-only (tshark); the GUI is a separate cask
 brew "radare2"
-brew "ghidra"         # pulls openjdk@21
+# ghidra: NOT via brew -- the formula pulls openjdk@21 whose ghcr.io bottle
+#   repeatedly fails here. Installed from the GitHub release by ensure_ghidra
+#   (lib/fallback.sh) into ~/.local/opt; runs on any JDK 21+ (you have 27).
 brew "binwalk"
 brew "hashcat"
 brew "john-jumbo"     # supersedes the `john` formula; do not install both

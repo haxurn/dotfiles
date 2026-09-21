@@ -170,7 +170,7 @@ install_packages() {
     if (( SEL_GIT )); then ensure_delta; fi
     if (( SEL_TOOLS )); then ensure_lazygit; fi
     if (( SEL_DEVTOOLS )); then ensure_mise; ensure_uv; ensure_rust; ensure_lazydocker; fi
-    if (( SEL_SECURITY )); then ensure_wordlists; ensure_binutils_shim; ensure_ctf_venv; fi
+    if (( SEL_SECURITY )); then ensure_wordlists; ensure_binutils_shim; ensure_ctf_venv; ensure_ghidra; fi
     if (( SEL_TERMINALS )); then
         ensure_nerd_font
         if is_linux && ! has ghostty && has snap; then
