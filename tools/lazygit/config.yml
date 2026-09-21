@@ -4,7 +4,7 @@ gui:
   border: rounded
   showRandomTip: false
   showBottomLine: false
-  theme:                       # Gruvbox Dark
+  theme: # Gruvbox Dark
     activeBorderColor: ["#fabd2f", bold]
     inactiveBorderColor: ["#928374"]
     optionsTextColor: ["#83a598"]
@@ -17,12 +17,12 @@ gui:
   authorColors:
     "*": "#d3869b"
 git:
-  paging:
-    colorArg: always
-    pager: delta --dark --paging=never
+  diffRenderers:
+    - colorArg: always
+      command: delta --dark --paging=never
   autoFetch: true
 os:
-  editPreset: nvim-remote      # opens in the parent nvim when launched from its terminal
+  editPreset: nvim-remote # opens in the parent nvim when launched from its terminal
 update:
   method: never
 promptToReturnFromSubprocess: false

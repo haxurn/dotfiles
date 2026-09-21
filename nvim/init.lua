@@ -3,6 +3,17 @@
 -- install a patched font & ensure your terminal supports glyphs
 -- enjoy :D
 
+-- macOS: xcrun resolves to the highest-numbered SDK installed (e.g. MacOSX27.0.sdk),
+-- whose .tbd files declare arm64e.x1-* architectures that older linkers reject:
+--   ld: tapi error: malformed file .../libSystem.B.tbd: unknown architecture
+-- That fails every tree-sitter parser build. Pin to the Command Line Tools
+-- default SDK. Set SDKROOT yourself to override; drop this once the CLT
+-- linker understands the newer SDK.
+if vim.fn.has("mac") == 1 and not vim.env.SDKROOT then
+	local sdk = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+	if vim.uv.fs_stat(sdk) then vim.env.SDKROOT = sdk end
+end
+
 -- auto install vim-plug and plugins, if not found
 local data_dir = vim.fn.stdpath('data')
 if vim.fn.empty(vim.fn.glob(data_dir .. '/site/autoload/plug.vim')) == 1 then
@@ -33,7 +44,7 @@ Plug('goolord/alpha-nvim') --pretty startup
 Plug('nvim-treesitter/nvim-treesitter', { ['branch'] = 'main', ['do'] = ':TSUpdate' }) --improved syntax
 Plug('mfussenegger/nvim-lint') --async linter
 Plug('nvim-tree/nvim-tree.lua') --file explorer
-Plug('windwp/nvim-autopairs') --autopairs 
+Plug('windwp/nvim-autopairs') --autopairs
 Plug('lewis6991/gitsigns.nvim') --git
 Plug('numToStr/Comment.nvim') --easier comments
 Plug('norcalli/nvim-colorizer.lua') --color highlight
@@ -88,7 +99,7 @@ require("plugins.treesitter") -- must load before initial file's FileType fires
 -- require("plugins.twilight")
 -- require("plugins.which-key")
 
-vim.defer_fn(function() 
+vim.defer_fn(function()
 		--defer non-essential configs,
 		--purely for experimental purposes:
 		--this only makes a difference of +-10ms on initial startup

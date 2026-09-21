@@ -69,3 +69,6 @@
 	root = rev-parse --show-toplevel
 	fixup = "!sh -c 'h=$(git log --oneline -30 | fzf | cut -d\" \" -f1); [ -n \"$h\" ] && git commit --fixup \"$h\"'"
 	aliases = config --get-regexp ^alias\\.
+[user]
+	name = Samson Tesfaye
+	email = haxurn@gmail.com

@@ -7,7 +7,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/init.sh"
 
 NVIM_DIR="$HOME/.config/nvim"
-
 require git curl
 ensure_neovim
 nvim_is_recent || die "neovim >= 0.11 is required (found: $(nvim --version 2>/dev/null | head -n1 || echo none))"
@@ -27,3 +26,4 @@ if [[ "${DRY_RUN:-0}" != 1 ]] && confirm "Install neovim plugins headless now?" 
 fi
 
 log_ok "neovim ready. First launch installs LSP servers via mason (watch :Mason)."
+
