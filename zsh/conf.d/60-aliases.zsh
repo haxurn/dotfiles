@@ -87,3 +87,11 @@ alias ne="nix develop"
 alias nb="nix build"
 alias nf="nix flake"
 alias ns="nix search nixpkgs"
+
+# ctf: shared solve-script venv (pwntools + pycryptodome + sympy + gmpy2 + z3 ...)
+# created by --security (ensure_ctf_venv). `ctf` = python in that env; `ctf-on`
+# activates it in the current shell.
+if [[ -x "$HOME/.venvs/ctf/bin/python" ]]; then
+  alias ctf="$HOME/.venvs/ctf/bin/python"
+  alias ctf-on="source $HOME/.venvs/ctf/bin/activate"
+fi

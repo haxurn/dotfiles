@@ -229,3 +229,18 @@ ensure_binutils_shim() {
     [[ -x "$src" && ! -e "$LOCAL_BIN/readelf" ]] && run ln -s "$src" "$LOCAL_BIN/readelf"
     return 0
 }
+
+# Shared CTF solve-script venv: pwntools et al isolated as uv tools can't be
+# imported from a plain `python3 solve.py`, so give solve scripts one env with
+# everything. macOS + Linux; needs uv (from --devtools). No-op if it exists.
+ensure_ctf_venv() {
+    has uv || { log_warn "ctf venv needs uv (install --devtools first)"; return 0; }
+    local venv="$HOME/.venvs/ctf"
+    [[ -x "$venv/bin/python" ]] && { log_ok "ctf venv present"; return 0; }
+    log_info "creating CTF solve-script venv at $venv"
+    run uv venv --python 3.12 "$venv" || { log_warn "ctf venv create failed"; return 0; }
+    run uv pip install --python "$venv/bin/python" \
+        pwntools pycryptodome sympy gmpy2 requests z3-solver ROPgadget capstone unicorn \
+        || log_warn "ctf venv package install incomplete"
+    return 0
+}

@@ -52,6 +52,18 @@ brew "yara"           # pattern matching for malware triage
 brew "capstone"       # disassembly framework
 brew "rizin"          # radare2 fork; pairs with the cutter cask
 brew "gdb"            # for pwndbg/gef workflows
+# ── CTF: forensics / stego / crypto ──
+brew "exiftool"       # metadata extraction (stego/forensics staple)
+brew "foremost"       # file carving by header/footer
+brew "sleuthkit"      # fls/icat/mmls disk forensics
+brew "testdisk"       # includes photorec (recover carved files)
+brew "bulk_extractor" # pull emails/urls/ccns from raw images
+brew "pngcheck"       # PNG chunk analysis (common stego vector)
+brew "imagemagick"    # image identify/convert for stego
+brew "netpbm"         # pnm toolchain for pixel-level stego
+brew "gmp"            # bignum (crypto challenge scripts)
+brew "mpfr"           # arbitrary-precision floats (crypto)
+cask "outguess"       # jpeg steganography detect/extract
 # ── reverse engineering / pwn ──
 brew "patchelf"       # patch ELF interpreter/rpath for pwn challenges
 brew "qemu"           # run + debug other-arch binaries (arm/mips ELF on this mac)
@@ -102,6 +114,9 @@ cask "bloodhound"     # AD attack-path GUI (BloodHound CE); needs neo4j running
 #               coercer ldeep minikerberos   (put rustup/bin on PATH; some build rust exts)
 #   angr     -> uv tool install angr   (symbolic execution)
 #   net kit  -> scapy sslyze dnsrecon   (uv tool install)
+#   CTF cli  -> RsaCtfTool factordb-pycli uncompyle6 decompyle3   (uv tool install)
+#   CTF libs -> a shared venv: uv venv ~/.venvs/ctf && uv pip install --python
+#               ~/.venvs/ctf pwntools pycryptodome sympy gmpy2 requests z3-solver
 #   netexec  -> PATH=$(brew --prefix rustup)/bin:$PATH \
 #               uv tool install --python 3.12 git+https://github.com/Pennyw0rth/NetExec
 #               (a dep builds a rust ext; needs cargo on PATH, and py3.12 not 3.13)
@@ -111,7 +126,10 @@ cask "bloodhound"     # AD attack-path GUI (BloodHound CE); needs neo4j running
 # Not in brew -> `cargo install` (rustup from --devtools):
 #   ropr        (fast ROP gadget finder)   pwninit  (auto-setup pwn challenges)
 # Not in brew -> `gem install` on mise ruby (system 2.6 too old):
-#   one_gadget  seccomp-tools
+#   one_gadget  seccomp-tools  zsteg (PNG/BMP LSB stego)
+# CTF crypto: sagemath is not in brew on Apple Silicon -- install the macOS app
+#   from sagemath.org or use conda/mamba. steghide/stegseek are not in core
+#   brew either; build from source or run in a linux container when needed.
 # WiFi on Apple Silicon: the internal card cannot do reliable monitor mode or
 #   packet injection, and macOS removed the `airport` capture util. What works
 #   NATIVELY: crack captured handshakes/PMKID (hashcat + hcxtools + aircrack-ng),
