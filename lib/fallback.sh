@@ -153,3 +153,79 @@ ensure_fzf() {
     if is_arm; then arch=arm64; else arch=amd64; fi
     gh_release_tarball "https://github.com/junegunn/fzf/releases/download/${tag}/fzf-${ver}-linux_${arch}.tar.gz" fzf
 }
+
+ensure_mise() {
+    has mise && return 0
+    if is_macos; then pkg_install mise; return; fi
+    log_info "installing mise via official installer"
+    run sh -c "curl -fsSL https://mise.run | sh"
+}
+
+ensure_uv() {
+    has uv && return 0
+    if is_macos; then pkg_install uv; return; fi
+    log_info "installing uv via official installer"
+    run sh -c "curl -fsSL https://astral.sh/uv/install.sh | sh"
+}
+
+ensure_lazydocker() {
+    has lazydocker && return 0
+    if is_macos; then pkg_install lazydocker; return; fi
+    local tag ver arch
+    tag="$(gh_latest_tag jesseduffield/lazydocker)" || true
+    [[ -n "$tag" ]] || { log_warn "could not resolve lazydocker release"; return 0; }
+    ver="${tag#v}"
+    if is_arm; then arch=arm64; else arch=x86_64; fi
+    gh_release_tarball "https://github.com/jesseduffield/lazydocker/releases/download/${tag}/lazydocker_${ver}_Linux_${arch}.tar.gz" lazydocker
+}
+
+ensure_rust() {
+    has cargo && return 0
+    if is_macos; then pkg_install rustup; return; fi
+    log_info "installing rust via rustup"
+    # -y: non-interactive; rust-src is required by rust_analyzer
+    run sh -c "curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --component rust-src,rustfmt,clippy"
+}
+
+# Wordlists for the recon/fuzzing tools (ffuf, gobuster, feroxbuster, hydra,
+# hashcat). Several GB of shallow clones, so only ever called under --security.
+# Blobs over 50m are left on the remote: nothing in these repos that large is
+# a wordlist, and it keeps SecLists to a sane size.
+_clone_wordlist() {
+    local url="$1" dest="$2" name
+    name="$(basename "$dest")"
+    if [[ -d "$dest/.git" ]]; then
+        log_ok "wordlists: $name present"
+        return 0
+    fi
+    log_info "wordlists: cloning $name (this is large)"
+    run git clone -q --depth 1 --filter=blob:limit=50m "$url" "$dest" \
+        || log_warn "wordlists: $name clone failed"
+}
+
+ensure_wordlists() {
+    local w="${WORDLISTS:-$HOME/.local/share/wordlists}"
+    run mkdir -p "$w"
+    _clone_wordlist https://github.com/danielmiessler/SecLists.git          "$w/seclists"
+    _clone_wordlist https://github.com/swisskyrepo/PayloadsAllTheThings.git "$w/payloadsallthethings"
+    _clone_wordlist https://github.com/fuzzdb-project/fuzzdb.git            "$w/fuzzdb"
+    # assetnote: wordlists-cdn.assetnote.io only, no git remote. Fetch manually
+    # from https://wordlists.assetnote.io when their CDN is up.
+    return 0
+}
+
+# GNU binutils is keg-only on macOS because its ld/as/strip would shadow and
+# break the native toolchain. But GEF, checksec and pwntools need GNU `readelf`,
+# which macOS ships not at all. Symlink ONLY the safe analysis tools into
+# ~/.local/bin -- never ld/as/strip. Linux already has them, so macOS-only.
+ensure_binutils_shim() {
+    is_macos || return 0
+    local bindir src
+    bindir="$(brew_prefix)/opt/binutils/bin"
+    [[ -d "$bindir" ]] || return 0
+    run mkdir -p "$LOCAL_BIN"
+    # readelf only: macOS lacks it; objdump/nm already exist as llvm builds.
+    src="$bindir/readelf"
+    [[ -x "$src" && ! -e "$LOCAL_BIN/readelf" ]] && run ln -s "$src" "$LOCAL_BIN/readelf"
+    return 0
+}

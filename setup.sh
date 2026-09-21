@@ -10,6 +10,8 @@ export DOTFILES_DIR
 source "$DOTFILES_DIR/lib/init.sh"
 
 SEL_TMUX=0 SEL_ZSH=0 SEL_NVIM=0 SEL_GIT=0 SEL_TERMINALS=0 SEL_TOOLS=0 SEL_VSCODE=0
+SEL_DEVTOOLS=0   # opt-in only: --all does not select it (keeps docker-smoke lean)
+SEL_SECURITY=0   # opt-in only, same reasoning
 MODE=normal   # normal | packages-only | no-packages
 DRY_RUN="${DRY_RUN:-0}"
 ASSUME_YES="${ASSUME_YES:-0}"
@@ -27,6 +29,8 @@ Components:
   --terminals      kitty, ghostty, alacritty configs (+ Nerd Font)
   --tools          lazygit, btop, bat configs
   --vscode         VS Code settings.json
+  --devtools       compilers + fullstack toolchain (NOT included in --all)
+  --security       security tooling: scanners, recon, RE (NOT included in --all)
 
 Options:
   --packages-only  install packages from packages/ manifests, link nothing
@@ -40,7 +44,7 @@ USAGE
 }
 
 select_all() { SEL_TMUX=1 SEL_ZSH=1 SEL_NVIM=1 SEL_GIT=1 SEL_TERMINALS=1 SEL_TOOLS=1 SEL_VSCODE=1; }
-any_selected() { (( SEL_TMUX + SEL_ZSH + SEL_NVIM + SEL_GIT + SEL_TERMINALS + SEL_TOOLS + SEL_VSCODE > 0 )); }
+any_selected() { (( SEL_TMUX + SEL_ZSH + SEL_NVIM + SEL_GIT + SEL_TERMINALS + SEL_TOOLS + SEL_VSCODE + SEL_DEVTOOLS + SEL_SECURITY > 0 )); }
 
 parse_args() {
     while (( $# )); do
@@ -53,6 +57,8 @@ parse_args() {
             --terminals)     SEL_TERMINALS=1 ;;
             --tools)         SEL_TOOLS=1 ;;
             --vscode)        SEL_VSCODE=1 ;;
+            --devtools)      SEL_DEVTOOLS=1 ;;
+            --security)      SEL_SECURITY=1 ;;
             --packages-only) MODE=packages-only ;;
             --no-packages)   MODE=no-packages ;;
             --dry-run)       DRY_RUN=1 ;;
@@ -78,9 +84,11 @@ menu() {
   [7] Terminals    (kitty / ghostty / alacritty)
   [8] Tools        (lazygit / btop / bat)
   [9] Packages only (no linking)
+ [10] Dev toolchain (compilers, runtimes, db clients)
+ [11] Security tools (scanners, recon, RE)
 
 MENU
-    read -r -p "Select (1-9): " choice
+    read -r -p "Select (1-11): " choice
     echo
     case "$choice" in
         1) select_all ;;
@@ -92,6 +100,8 @@ MENU
         7) SEL_TERMINALS=1 ;;
         8) SEL_TOOLS=1 ;;
         9) select_all; MODE=packages-only ;;
+        10) SEL_DEVTOOLS=1 ;;
+        11) SEL_SECURITY=1 ;;
         *) die "Invalid choice" ;;
     esac
 }
@@ -141,9 +151,13 @@ install_packages() {
     if [[ "$DOT_PKG" == brew ]]; then
         brew_bundle "$(manifest_for)"
         (( SEL_TERMINALS )) && brew_bundle "$(manifest_for terminals)"
+        (( SEL_DEVTOOLS ))  && brew_bundle "$(manifest_for devtools)"
+        (( SEL_SECURITY ))  && brew_bundle "$(manifest_for security)"
     else
         pkg_install_manifest "$(manifest_for)"
         (( SEL_TERMINALS )) && pkg_install_manifest "$(manifest_for terminals)"
+        (( SEL_DEVTOOLS ))  && pkg_install_manifest "$(manifest_for devtools)"
+        (( SEL_SECURITY ))  && pkg_install_manifest "$(manifest_for security)"
     fi
     # Component-scoped fallbacks for what the manager lacks / ships too old.
     if (( SEL_ZSH )); then
@@ -155,6 +169,8 @@ install_packages() {
     if (( SEL_NVIM )); then ensure_neovim; ensure_tree_sitter; fi
     if (( SEL_GIT )); then ensure_delta; fi
     if (( SEL_TOOLS )); then ensure_lazygit; fi
+    if (( SEL_DEVTOOLS )); then ensure_mise; ensure_uv; ensure_rust; ensure_lazydocker; fi
+    if (( SEL_SECURITY )); then ensure_wordlists; ensure_binutils_shim; fi
     if (( SEL_TERMINALS )); then
         ensure_nerd_font
         if is_linux && ! has ghostty && has snap; then
@@ -209,6 +225,8 @@ summary() {
     (( SEL_TMUX )) && echo "  - tmux, then prefix + I    (Ctrl-a I installs plugins if any are missing)"
     (( SEL_NVIM )) && echo "  - nvim                     (plugins + LSP servers install on first launch)"
     (( SEL_GIT ))  && echo "  - check ~/.gitconfig.local (name/email live there, not in the repo)"
+    (( SEL_DEVTOOLS )) && echo "  - mise doctor              (and see README: JDK symlink for Android Studio)"
+    (( SEL_SECURITY )) && echo "  - uv tool install frida-tools objection pwntools ropper   (python security tooling)"
     return 0
 }
 
