@@ -1,0 +1,36 @@
+# packages/Brewfile.devtools -- compilers + fullstack toolchain, only with --devtools
+brew "mise"           # manages node/python/java per project; activated in zsh/conf.d/70-tools.zsh
+brew "uv"             # python venvs + package installs; replaces pip/virtualenv
+brew "python@3.13"    # real interpreter: macOS ships only an Xcode 3.9 stub with no headers
+brew "pnpm"
+brew "rustup"        # not `rust`: rust_analyzer needs rust-src, conform needs rustfmt
+brew "openjdk@21"     # keg-only LTS; jdtls + Android Gradle need it. See README for the symlink
+brew "kotlin"
+brew "cmake"
+brew "pkg-config"
+brew "golangci-lint"
+brew "ktlint"
+brew "hadolint"       # mason has no macos-arm64 asset for it; brew does
+brew "libpq"          # keg-only; psql client only -- servers run in docker
+brew "redis"          # for redis-cli; server runs in docker
+brew "mongosh"
+brew "lazydocker"
+brew "dive"
+brew "k9s"
+brew "kubernetes-cli" # kubectl
+brew "jq"
+brew "yq"
+brew "httpie"
+brew "git-lfs"
+brew "difftastic"     # structural diffs; `git difftool -t difftastic`
+brew "just"
+brew "watchexec"
+brew "gnupg"          # commit signing
+brew "hyperfine"
+brew "tokei"
+brew "sops"           # with age, for encrypted secrets in repos
+brew "age"
+brew "glow"
+brew "tlrc"           # tldr client
+brew "sd"
+brew "duf"

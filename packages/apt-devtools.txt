@@ -1,0 +1,25 @@
+# packages/apt-devtools.txt -- Ubuntu 24.04 / Debian 12. Generic names; lib/pkg.sh maps them.
+python             # -> python3 python3-venv python3-pip
+openjdk            # -> openjdk-21-jdk
+cmake
+pkg-config
+libpq              # -> postgresql-client (psql only; server in docker)
+redis              # -> redis-tools
+jq
+httpie
+git-lfs
+just               # universe
+gnupg
+hyperfine
+age
+sd                 # -> sd (24.04+); Debian 12 lacks it
+duf
+# Not in apt (or too old) -> lib/fallback.sh / manual:
+#   mise        -> ensure_mise (https://mise.run)
+#   uv          -> ensure_uv (astral installer)
+#   rustup      -> ensure_rust (https://sh.rustup.rs)
+#   lazydocker  -> ensure_lazydocker (GitHub release)
+#   pnpm        -> corepack enable, or npm i -g pnpm
+#   kubectl     -> needs the kubernetes apt repo
+# No apt package at all: kotlin, ktlint, hadolint, mongosh, dive, k9s,
+# difftastic, glow, tlrc, sops, tokei, watchexec, yq, golangci-lint.
