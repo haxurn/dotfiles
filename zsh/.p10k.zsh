@@ -116,9 +116,11 @@
   typeset -g POWERLEVEL9K_PROMPT_CHAR_OVERWRITE_STATE=false
 
 
-  # ── OS icon: Ubuntu Nerd Font glyph ─────────────────────────────────────
+  # ── OS icon: Nerd Font glyphs ───────────────────────────────────────────
+  # Without these p10k falls back to its ASCII names ('OSX', 'Ubuntu').
   typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND='#fab387'
   typeset -g POWERLEVEL9K_LINUX_UBUNTU_ICON=''
+  typeset -g POWERLEVEL9K_APPLE_ICON=''
   typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%{[3m%}${P9K_CONTENT}%{[23m%}'
 
   # Grey Python Virtual Environment.
