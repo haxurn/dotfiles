@@ -1,0 +1,10 @@
+# gdb: load GEF if present (installed by --security; ~/.gdbinit-gef.py is the
+# single-file GEF from https://github.com/hugsy/gef, not tracked here).
+# GEF is preferred over pwndbg on this setup: single file, no build, and it
+# handles non-x86 targets (arm/mips via qemu) which pwn CTFs increasingly use.
+python
+import os
+gef = os.path.expanduser("~/.gdbinit-gef.py")
+if os.path.exists(gef):
+    gdb.execute("source " + gef)
+end

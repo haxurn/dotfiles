@@ -19,4 +19,7 @@ copy_if_missing "$SCRIPT_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
 # bat: config only (gruvbox-dark is a built-in theme)
 link_file "$SCRIPT_DIR/bat/config" "$HOME/.config/bat/config"
 
-log_ok "tools configured (lazygit, btop, bat)"
+# gdb: GEF loader (~/.gdbinit). Harmless if gdb / GEF are absent.
+link_file "$SCRIPT_DIR/gdb/gdbinit" "$HOME/.gdbinit"
+
+log_ok "tools configured (lazygit, btop, bat, gdb)"

@@ -40,13 +40,47 @@ path relative to `$HOME`.
 ./setup.sh [components] [options]
 
 Components:  --all  --zsh  --tmux  --nvim  --git  --terminals  --tools  --vscode
+             --devtools        compilers + fullstack toolchain; NOT part of --all
 Options:     --packages-only   install packages, link nothing
              --no-packages     link/configure only
              --dry-run         print every action, change nothing
              -y, --yes         assume yes (implied when stdin is not a tty)
 ```
 
-Each `<component>/install.sh` also runs standalone.
+Each `<component>/install.sh` also runs standalone (`--devtools` and `--vscode` are
+manifest/function-only and have no directory).
+
+## Dev toolchain (`--devtools`)
+
+Opt-in, and deliberately excluded from `--all` so a minimal server or container
+install never drags in a JDK. Packages live in `packages/Brewfile.devtools` and
+`packages/{apt,pacman,dnf}-devtools.txt`.
+
+```bash
+./setup.sh --devtools        # toolchain only
+./setup.sh --all --devtools  # everything
+```
+
+Covers TypeScript/Node, Python, Go and Java/Kotlin: `mise`, `uv`, `python@3.13`,
+`pnpm`, `openjdk@21`, `kotlin`, `cmake`, plus linters (`golangci-lint`, `ktlint`,
+`hadolint`), container tools (`lazydocker`, `dive`, `k9s`, `kubectl`) and daily
+drivers (`jq`, `yq`, `httpie`, `just`, `watchexec`, `difftastic`, ...).
+
+**Databases run in Docker; only the clients are installed** -- `psql` (libpq),
+`redis-cli`, `mongosh`. No always-on local daemons.
+
+**Node versions**: `mise` takes over when installed and `70-tools.zsh` then skips
+the `fnm` block, so only one tool hooks the node shim.
+
+**Java**: `openjdk@21` is keg-only. `00-env.zsh` exports `JAVA_HOME`, which covers
+the shell and nvim/jdtls. GUI apps and `/usr/libexec/java_home` (Android Studio,
+Gradle) additionally need the JDK registered system-wide -- one sudo step setup.sh
+deliberately does not run for you:
+
+```bash
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk \
+             /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+```
 
 ## Layout
 
@@ -54,7 +88,7 @@ Each `<component>/install.sh` also runs standalone.
 dotfiles/
 ├── setup.sh                 # dispatcher: flags, menu, mac bootstrap, packages, components
 ├── lib/                     # shared bash (bash 3.2 safe): log, os detect, link, pkg, fallbacks
-├── packages/                # Brewfile, apt.txt, pacman.txt, dnf.txt (+ *-terminals)
+├── packages/                # Brewfile, apt.txt, pacman.txt, dnf.txt (+ *-terminals, *-devtools)
 ├── scripts/check.sh         # shellcheck + syntax + parse + dry-run
 ├── scripts/docker-smoke.sh  # end-to-end on ubuntu:24.04
 ├── zsh/

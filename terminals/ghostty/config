@@ -2,6 +2,10 @@
 theme = alacritty-default
 font-family = JetBrainsMono Nerd Font Mono
 font-size = 12
+# Render the Apple logo (U+F302) from the non-Mono face so it keeps its full
+# advance width instead of being squeezed into one cell. Everything else stays
+# Mono, so TUI alignment is untouched.
+font-codepoint-map = U+F302=JetBrainsMono Nerd Font
 
 cursor-style = block
 cursor-style-blink = true
