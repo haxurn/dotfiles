@@ -6,6 +6,9 @@ brew "pnpm"
 brew "rustup"        # not `rust`: rust_analyzer needs rust-src, conform needs rustfmt
 brew "openjdk@21"     # keg-only LTS; jdtls + Android Gradle need it. See README for the symlink
 brew "kotlin"
+cask "flutter"        # bundles dart; Android SDK comes from Android Studio
+brew "scrcpy"         # mirror/control an Android device; uses the SDK's adb
+brew "bundletool"     # inspect/install .aab bundles locally
 brew "cmake"
 brew "pkg-config"
 brew "golangci-lint"

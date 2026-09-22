@@ -31,6 +31,11 @@ if (( IS_MAC )) && [[ -n "$HOMEBREW_PREFIX" ]]; then
   # building against keg-only libpq (psycopg2, asyncpg, ...)
   [[ -d "$HOMEBREW_PREFIX/opt/libpq/lib/pkgconfig" ]] \
     && export PKG_CONFIG_PATH="$HOMEBREW_PREFIX/opt/libpq/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+  # Android SDK from Android Studio (flutter, adb, emulator)
+  if [[ -d "$HOME/Library/Android/sdk" ]]; then
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    path=("$ANDROID_HOME/platform-tools" "$ANDROID_HOME/emulator" "$ANDROID_HOME/cmdline-tools/latest/bin" $path)
+  fi
   # metasploit omnibus installs here (its cask is disabled; see packages/Brewfile.security)
   [[ -d /opt/metasploit-framework/bin ]] && path=("/opt/metasploit-framework/bin" $path)
 fi
