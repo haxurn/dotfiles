@@ -42,6 +42,21 @@ brew "dalfox"         # xss scanner
 brew "arjun"          # http param discovery
 brew "tlsx"           # tls grabber
 brew "cariddi"        # crawl for endpoints/secrets
+brew "gf"             # grep patterns for bug-bounty triage (xss/ssrf/lfi wrappers)
+brew "notify"         # stream tool output to slack/discord/telegram
+brew "chaos-client"   # projectdiscovery chaos subdomain dataset
+brew "asnmap"         # asn -> CIDR ranges
+brew "cdncheck"       # flag which hosts sit behind a CDN/WAF
+brew "mapcidr"        # expand/collapse CIDR ranges for scanning
+brew "dnsgen"         # permutation-based subdomain generation
+brew "shuffledns"     # massdns wrapper: resolve + bruteforce subdomains
+brew "massdns"        # high-perf DNS resolver (shuffledns/puredns backend)
+brew "s3scanner"      # find open/misconfigured S3 buckets
+brew "jwt-cli"        # decode/inspect/forge JWTs
+cask "caido"          # modern burp-style web proxy (rust/go)
+# zap: brew cask disabled 2026-09-01 (gatekeeper). Get OWASP ZAP from the
+#   official DMG (https://www.zaproxy.org/download/) or run headless via docker:
+#   docker run -it ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd
 # ── exploitation ──
 brew "exploitdb"      # searchsploit
 # ── cracking support ──
