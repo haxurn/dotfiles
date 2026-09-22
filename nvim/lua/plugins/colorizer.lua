@@ -1,10 +1,16 @@
-require("colorizer").setup({ "*" }, {
-	RGB = true, -- #RGB hex codes
-	RRGGBB = true, -- #RRGGBB hex codes
-	names = false, -- "Name" codes like Blue
-	RRGGBBAA = true, -- #RRGGBBAA hex codes
-	rgb_fn = true, -- CSS rgb() and rgba() functions
-	hsl_fn = true, -- CSS hsl() and hsla() functions
-	css = true, -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
-	css_fn = true, -- Enable all CSS *functions*: rgb_fn, hsl_fn
+-- catgoose/nvim-colorizer.lua (maintained fork of norcalli's).
+-- New API: filetypes + user_default_options, not two positional tables.
+-- `css`/`css_fn` are deliberately not used: they switch `names` back on, and
+-- highlighting every word like "Blue" was not wanted here.
+require("colorizer").setup({
+	filetypes = { "*" },
+	user_default_options = {
+		RGB = true, -- #RGB
+		RRGGBB = true, -- #RRGGBB
+		RRGGBBAA = true, -- #RRGGBBAA
+		names = false, -- do NOT highlight bare words like "Blue"
+		rgb_fn = true, -- rgb() / rgba()
+		hsl_fn = true, -- hsl() / hsla()
+		mode = "background",
+	},
 })

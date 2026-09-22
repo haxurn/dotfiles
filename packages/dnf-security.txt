@@ -1,0 +1,17 @@
+# best-effort Fedora list
+nmap
+masscan
+sqlmap
+nikto
+hydra
+wireshark-cli      # -> wireshark-cli
+binwalk
+radare2
+hashcat
+john
+mkcert
+hexyl
+# Not packaged -> upstream releases: the Go/Rust scanners (gitleaks, trivy,
+# grype, syft, cosign, ffuf, nuclei, httpx, subfinder, amass, feroxbuster),
+# plus apktool jadx dex2jar ghidra.
+# python tooling (frida-tools objection pwntools ropper): uv tool install

@@ -1,0 +1,27 @@
+nmap
+masscan
+sqlmap
+nikto
+hydra
+wireshark-cli
+binwalk
+radare2
+hashcat
+john
+apktool
+jadx
+mkcert
+hexyl
+gitleaks
+trivy
+cosign
+syft
+semgrep
+ffuf
+gobuster
+nuclei
+subfinder
+amass
+feroxbuster
+# AUR: trufflehog osv-scanner checkov dex2jar ghidra grype httpx
+# python tooling (frida-tools objection pwntools ropper): uv tool install

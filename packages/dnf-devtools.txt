@@ -1,0 +1,21 @@
+# best-effort Fedora list
+python             # -> python3
+openjdk            # -> java-21-openjdk-devel
+cmake
+pkg-config         # -> pkgconf-pkg-config
+libpq              # -> postgresql (psql only; server in docker)
+redis
+jq
+yq
+httpie
+git-lfs
+just
+gnupg
+hyperfine
+tokei
+age
+sd
+duf
+# mise, uv, rustup, lazydocker -> lib/fallback.sh. Not packaged: kotlin, ktlint,
+# hadolint, mongosh, dive, k9s, kubectl, difftastic, glow, tlrc, sops,
+# watchexec, golangci-lint, pnpm.

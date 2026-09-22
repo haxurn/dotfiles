@@ -26,6 +26,25 @@ pkg_name() {
         brew:wl-clipboard|brew:xclip|brew:fontconfig|brew:ca-certificates) echo "" ;;
         dnf:shellcheck)             echo ShellCheck ;;
         apt:ghostty|dnf:ghostty)    echo "" ;;   # snap / copr
+        # --devtools
+        apt:python)                 echo "python3 python3-venv python3-pip" ;;
+        pacman:python)              echo python ;;
+        dnf:python)                 echo python3 ;;
+        brew:python)                echo python@3.13 ;;
+        apt:openjdk)                echo openjdk-21-jdk ;;
+        pacman:openjdk)             echo jdk21-openjdk ;;
+        dnf:openjdk)                echo java-21-openjdk-devel ;;
+        brew:openjdk)               echo openjdk@21 ;;
+        apt:libpq)                  echo postgresql-client ;;
+        dnf:libpq)                  echo postgresql ;;
+        pacman:libpq)               echo postgresql-libs ;;
+        apt:redis)                  echo redis-tools ;;
+        pacman:pkg-config)          echo pkgconf ;;
+        dnf:pkg-config)             echo pkgconf-pkg-config ;;
+        brew:kubectl)               echo kubernetes-cli ;;
+        apt:mise|dnf:mise)          echo "" ;;   # -> ensure_mise
+        apt:uv)                     echo "" ;;   # -> ensure_uv
+        apt:lazydocker|dnf:lazydocker) echo "" ;;  # -> ensure_lazydocker
         *)                          echo "$g" ;;
     esac
 }
@@ -43,7 +62,8 @@ pkg_update() {
 pkg_available() {
     case "$DOT_PKG" in
         apt) [[ -n "$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ && $2!="(none)"{print $2}')" ]] ;;
-        *)   return 0 ;;
+        dnf) dnf --quiet list "$1" >/dev/null 2>&1 ;;
+        *)   return 0 ;;   # pacman: db may not be synced yet (pkg_update runs later)
     esac
 }
 

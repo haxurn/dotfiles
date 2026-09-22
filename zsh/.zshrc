@@ -24,7 +24,11 @@ for _f in "$DOTFILES_ZSH"/conf.d/*.zsh(N); do source "$_f"; done; unset _f
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # ── Powerlevel10k prompt config ─────────────────────────────────────────
-[[ -t 1 && -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
+# No `-t 1` guard here: p10k's instant prompt redirects fd 1 to a buffer while
+# .zshrc runs, so `[[ -t 1 ]]` is false during init. Gating on it skips this
+# source and p10k falls back to its built-in powerline default. .zshrc only runs
+# for interactive shells anyway, so an unconditional source is correct.
+[[ -r ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 [[ -n $ZPROF ]] && zprof
 

@@ -1,0 +1,19 @@
+# packages/apt-security.txt -- Ubuntu 24.04 / Debian 12. Generic names; lib/pkg.sh maps them.
+nmap
+masscan
+sqlmap
+nikto
+hydra
+wireshark-cli      # -> tshark
+binwalk
+radare2
+hashcat
+john
+apktool
+mkcert
+hexyl              # -> hexyl (24.04+)
+# Not in apt -> upstream installers / releases:
+#   gitleaks trufflehog semgrep trivy grype syft osv-scanner cosign checkov
+#   ffuf gobuster feroxbuster nuclei httpx subfinder amass jadx dex2jar ghidra
+# Most ship Go/Rust static binaries; `mise use -g` or the vendor script works.
+# python tooling (frida-tools objection pwntools ropper): uv tool install

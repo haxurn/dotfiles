@@ -118,10 +118,12 @@
 
   # ── OS icon: Nerd Font glyphs ───────────────────────────────────────────
   # Without these p10k falls back to its ASCII names ('OSX', 'Ubuntu').
-  typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND='#fab387'
+  typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND='#ffffff'
   typeset -g POWERLEVEL9K_LINUX_UBUNTU_ICON=''
-  typeset -g POWERLEVEL9K_APPLE_ICON=''
-  typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%{[3m%}${P9K_CONTENT}%{[23m%}'
+  # U+F302 (nf-linux-apple) is a filled, heavier apple than the F179 outline.
+  typeset -g POWERLEVEL9K_APPLE_ICON=''
+  # Bold, not italic: italic skews the logo and picks the thinner italic face.
+  typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%B${P9K_CONTENT}%b'
 
   # Grey Python Virtual Environment.
   typeset -g POWERLEVEL9K_VIRTUALENV_FOREGROUND=$peach

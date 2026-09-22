@@ -153,3 +153,140 @@ ensure_fzf() {
     if is_arm; then arch=arm64; else arch=amd64; fi
     gh_release_tarball "https://github.com/junegunn/fzf/releases/download/${tag}/fzf-${ver}-linux_${arch}.tar.gz" fzf
 }
+
+ensure_mise() {
+    has mise && return 0
+    if is_macos; then pkg_install mise; return; fi
+    log_info "installing mise via official installer"
+    run sh -c "curl -fsSL https://mise.run | sh"
+}
+
+ensure_uv() {
+    has uv && return 0
+    if is_macos; then pkg_install uv; return; fi
+    log_info "installing uv via official installer"
+    run sh -c "curl -fsSL https://astral.sh/uv/install.sh | sh"
+}
+
+ensure_lazydocker() {
+    has lazydocker && return 0
+    if is_macos; then pkg_install lazydocker; return; fi
+    local tag ver arch
+    tag="$(gh_latest_tag jesseduffield/lazydocker)" || true
+    [[ -n "$tag" ]] || { log_warn "could not resolve lazydocker release"; return 0; }
+    ver="${tag#v}"
+    if is_arm; then arch=arm64; else arch=x86_64; fi
+    gh_release_tarball "https://github.com/jesseduffield/lazydocker/releases/download/${tag}/lazydocker_${ver}_Linux_${arch}.tar.gz" lazydocker
+}
+
+ensure_rust() {
+    has cargo && return 0
+    if is_macos; then pkg_install rustup; return; fi
+    log_info "installing rust via rustup"
+    # -y: non-interactive; rust-src is required by rust_analyzer
+    run sh -c "curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --component rust-src,rustfmt,clippy"
+}
+
+# Wordlists for the recon/fuzzing tools (ffuf, gobuster, feroxbuster, hydra,
+# hashcat). Several GB of shallow clones, so only ever called under --security.
+# Blobs over 50m are left on the remote: nothing in these repos that large is
+# a wordlist, and it keeps SecLists to a sane size.
+_clone_wordlist() {
+    local url="$1" dest="$2" name
+    name="$(basename "$dest")"
+    if [[ -d "$dest/.git" ]]; then
+        log_ok "wordlists: $name present"
+        return 0
+    fi
+    log_info "wordlists: cloning $name (this is large)"
+    run git clone -q --depth 1 --filter=blob:limit=50m "$url" "$dest" \
+        || log_warn "wordlists: $name clone failed"
+}
+
+ensure_wordlists() {
+    local w="${WORDLISTS:-$HOME/.local/share/wordlists}"
+    run mkdir -p "$w"
+    _clone_wordlist https://github.com/danielmiessler/SecLists.git          "$w/seclists"
+    _clone_wordlist https://github.com/swisskyrepo/PayloadsAllTheThings.git "$w/payloadsallthethings"
+    _clone_wordlist https://github.com/fuzzdb-project/fuzzdb.git            "$w/fuzzdb"
+    # assetnote: wordlists-cdn.assetnote.io only, no git remote. Fetch manually
+    # from https://wordlists.assetnote.io when their CDN is up.
+    return 0
+}
+
+# GNU binutils is keg-only on macOS because its ld/as/strip would shadow and
+# break the native toolchain. But GEF, checksec and pwntools need GNU `readelf`,
+# which macOS ships not at all. Symlink ONLY the safe analysis tools into
+# ~/.local/bin -- never ld/as/strip. Linux already has them, so macOS-only.
+ensure_binutils_shim() {
+    is_macos || return 0
+    local bindir src
+    bindir="$(brew_prefix)/opt/binutils/bin"
+    [[ -d "$bindir" ]] || return 0
+    run mkdir -p "$LOCAL_BIN"
+    # readelf only: macOS lacks it; objdump/nm already exist as llvm builds.
+    src="$bindir/readelf"
+    [[ -x "$src" && ! -e "$LOCAL_BIN/readelf" ]] && run ln -s "$src" "$LOCAL_BIN/readelf"
+    return 0
+}
+
+# Shared CTF solve-script venv: pwntools et al isolated as uv tools can't be
+# imported from a plain `python3 solve.py`, so give solve scripts one env with
+# everything. macOS + Linux; needs uv (from --devtools). No-op if it exists.
+ensure_ctf_venv() {
+    has uv || { log_warn "ctf venv needs uv (install --devtools first)"; return 0; }
+    local venv="$HOME/.venvs/ctf"
+    [[ -x "$venv/bin/python" ]] && { log_ok "ctf venv present"; return 0; }
+    log_info "creating CTF solve-script venv at $venv"
+    run uv venv --python 3.12 "$venv" || { log_warn "ctf venv create failed"; return 0; }
+    run uv pip install --python "$venv/bin/python" \
+        pwntools pycryptodome sympy gmpy2 requests z3-solver ROPgadget capstone unicorn \
+        || log_warn "ctf venv package install incomplete"
+    return 0
+}
+
+# Ghidra: install from the GitHub release, not the brew formula -- the formula
+# depends on openjdk@21 whose ghcr.io bottle is unreliable, and Ghidra is just a
+# Java app in a zip that runs on any JDK 21+. Lands in ~/.local/opt/ghidra_*,
+# launched via ~/.local/bin/ghidra. macOS + Linux; no-op if already installed.
+ensure_ghidra() {
+    has ghidra && return 0
+    local existing=""; local d
+    for d in "$HOME/.local/opt"/ghidra_*/; do [[ -d "$d" ]] && { existing="$d"; break; }; done
+    [[ -n "$existing" ]] && { log_ok "ghidra present: $existing"; return 0; }
+    require curl unzip
+    local url zip dir d
+    url="$(gh_latest_tag NationalSecurityAgency/ghidra >/dev/null 2>&1; \
+           curl -fsSL https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest \
+           | sed -n 's/.*"browser_download_url": *"\([^"]*\.zip\)".*/\1/p' | head -1)"
+    [[ -n "$url" ]] || { log_warn "could not resolve ghidra release"; return 0; }
+    zip="$HOME/.local/opt/ghidra.zip"
+    run mkdir -p "$HOME/.local/opt" "$LOCAL_BIN"
+    log_info "downloading ghidra (large): $url"
+    run curl -fsSL --retry 5 --retry-all-errors -o "$zip" "$url" || { log_warn "ghidra download failed"; return 0; }
+    run unzip -q "$zip" -d "$HOME/.local/opt/" && run rm -f "$zip"
+    for d in "$HOME/.local/opt"/ghidra_*/; do [[ -d "$d" ]] && { dir="$d"; break; }; done
+    [[ -n "$dir" ]] && run ln -sf "${dir}ghidraRun" "$LOCAL_BIN/ghidra"
+    # Apple Silicon (and macOS x86, linux arm) ship no prebuilt decompiler, so
+    # build the natives. Gradle can't run under JDK 27, so build with JDK 21 via
+    # mise if present; then copy the built binaries into the runtime os/ dir.
+    if is_macos && [[ ! -x "$dir/Ghidra/Features/Decompiler/os/mac_arm_64/decompile" ]]; then
+        local jdk21=""
+        has mise && jdk21="$(mise where java@temurin-21 2>/dev/null)"
+        [[ -z "$jdk21" ]] && has mise && { run mise install java@temurin-21; jdk21="$(mise where java@temurin-21 2>/dev/null)"; }
+        if [[ -x "$jdk21/bin/java" ]]; then
+            log_info "building ghidra native decompiler (JDK 21)"
+            ( cd "$dir/support/gradle" && JAVA_HOME="$jdk21" PATH="$jdk21/bin:$PATH" run ./gradlew buildNatives )
+            local dec="$dir/Ghidra/Features/Decompiler"
+            [[ -f "$dec/build/os/mac_arm_64/decompile" ]] && {
+                run mkdir -p "$dec/os/mac_arm_64"
+                run cp "$dec/build/os/mac_arm_64/decompile" "$dec/build/os/mac_arm_64/sleigh" "$dec/os/mac_arm_64/"
+                run chmod +x "$dec/os/mac_arm_64/decompile" "$dec/os/mac_arm_64/sleigh"
+            }
+        else
+            log_warn "ghidra: no JDK 21 for native build; decompiler unavailable until built"
+        fi
+    fi
+    log_ok "ghidra installed; launch with: ghidra"
+    return 0
+}

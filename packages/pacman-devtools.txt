@@ -1,0 +1,31 @@
+mise
+uv
+python
+pnpm
+rustup
+openjdk            # -> jdk21-openjdk
+kotlin
+cmake
+pkg-config         # -> pkgconf
+golangci-lint
+libpq              # -> postgresql-libs
+redis
+k9s
+kubectl
+jq
+yq
+httpie
+git-lfs
+difftastic
+just
+watchexec
+gnupg
+hyperfine
+tokei
+sops
+age
+glow
+tlrc
+sd
+duf
+# AUR only: ktlint, hadolint, mongosh, dive, lazydocker -> ensure_lazydocker.
