@@ -35,3 +35,7 @@ for _f in "$DOTFILES_ZSH"/conf.d/*.zsh(N); do source "$_f"; done; unset _f
 # Keep the file's exit status at 0. Without this, the final conditional above
 # decides it, so `source ~/.zshrc` reports failure and the prompt shows 1.
 true
+
+# Google Cloud SDK (brew cask)
+source /opt/homebrew/share/google-cloud-sdk/path.zsh.inc
+source /opt/homebrew/share/google-cloud-sdk/completion.zsh.inc
