@@ -19,7 +19,10 @@ copy_if_missing "$SCRIPT_DIR/btop/btop.conf" "$HOME/.config/btop/btop.conf"
 # bat: config only (gruvbox-dark is a built-in theme)
 link_file "$SCRIPT_DIR/bat/config" "$HOME/.config/bat/config"
 
+# eza: colors + folder/file icons (EZA_CONFIG_DIR points here, see 00-env.zsh)
+link_file "$SCRIPT_DIR/eza/theme.yml" "$HOME/.config/eza/theme.yml"
+
 # gdb: GEF loader (~/.gdbinit). Harmless if gdb / GEF are absent.
 link_file "$SCRIPT_DIR/gdb/gdbinit" "$HOME/.gdbinit"
 
-log_ok "tools configured (lazygit, btop, bat, gdb)"
+log_ok "tools configured (lazygit, btop, bat, eza, gdb)"

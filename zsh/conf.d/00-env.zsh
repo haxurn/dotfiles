@@ -61,6 +61,10 @@ export BUN_INSTALL="$HOME/.bun"
 export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"   # lazygit: XDG path on mac too
 export WORDLISTS="$HOME/.local/share/wordlists"       # seclists et al (--security)
 export BAT_THEME="gruvbox-dark"
+# eza: read tools/eza/theme.yml from ~/.config on mac too (default is ~/Library/Application Support)
+export EZA_CONFIG_DIR="$HOME/.config/eza"
+# Two spaces after each eza icon so full-size Nerd Font icons do not touch the name
+export EZA_ICON_SPACING=2
 
 # LS_COLORS (zsh never gets this from /etc/profile on Ubuntu); gnubin provides dircolors on mac
 [[ -z "$LS_COLORS" ]] && (( $+commands[dircolors] )) && eval "$(dircolors -b)"

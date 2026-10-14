@@ -2,11 +2,12 @@
 
 # navigation / listing
 if (( $+commands[eza] )); then
-  alias ls="eza --icons --group-directories-first"
-  alias ll="eza --icons -lh --group-directories-first --git"
-  alias la="eza --icons -lah --group-directories-first --git"
-  alias lst="eza --icons --tree --level=3"
-  alias l.="eza --icons -d .*"
+  # Empty LS_COLORS so eza uses tools/eza/theme.yml colors; LS_COLORS wins otherwise.
+  alias ls="LS_COLORS= eza --icons --group-directories-first"
+  alias ll="LS_COLORS= eza --icons -lh --group-directories-first --git"
+  alias la="LS_COLORS= eza --icons -lah --group-directories-first --git"
+  alias lst="LS_COLORS= eza --icons --tree --level=3"
+  alias l.="LS_COLORS= eza --icons -d .*"
 elif (( IS_MAC )); then
   alias ls="ls -G"; alias ll="ls -lhG"; alias la="ls -lahG"
 else
