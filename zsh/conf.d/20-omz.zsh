@@ -20,4 +20,18 @@ plugins=(
   fzf-tab
 )
 
-[[ -r "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
+# oh-my-zsh deletes, rebuilds and then appends to $ZSH_COMPDUMP. When several shells
+# start at once (tmux-resurrect restoring panes) they write it together and corrupt
+# it ("zcompdump:NNNN: no such file or directory"). A file lock lets one shell at a
+# time load oh-my-zsh; others wait a few ms. If locking fails, load without it.
+if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
+  zmodload -F zsh/system b:zsystem 2>/dev/null
+  : >> "${ZSH_COMPDUMP}.omz-lock" 2>/dev/null    # zsystem flock needs an existing file
+  if (( $+builtins[zsystem] )) && zsystem flock -t 10 -f _omz_lock_fd "${ZSH_COMPDUMP}.omz-lock" 2>/dev/null; then
+    source "$ZSH/oh-my-zsh.sh"
+    zsystem flock -u $_omz_lock_fd
+  else
+    source "$ZSH/oh-my-zsh.sh"
+  fi
+  unset _omz_lock_fd
+fi

@@ -93,7 +93,7 @@
   typeset -g POWERLEVEL9K_BACKGROUND=                            # transparent background
   typeset -g POWERLEVEL9K_{LEFT,RIGHT}_{LEFT,RIGHT}_WHITESPACE=  # no surrounding whitespace
   typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='%F{#45475a}  │  %f'           # space between left segments
-  typeset -g POWERLEVEL9K_RIGHT_SUBSEGMENT_SEPARATOR='%F{#45475a}·%f '       # pipe between right segments
+  typeset -g POWERLEVEL9K_RIGHT_SUBSEGMENT_SEPARATOR='%F{#45475a}  ·  %f'   # dot between right segments; spaced so icons don't touch it
   typeset -g POWERLEVEL9K_{LEFT,RIGHT}_SEGMENT_SEPARATOR=        # no end-of-line symbol
   # typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION=         # icons enabled
   # Extra space after every segment icon. Full-size Nerd Font icons are two cells
