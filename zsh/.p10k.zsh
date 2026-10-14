@@ -77,9 +77,11 @@
     # =========================[ Line #1 ]=========================
     status                    # exit code of last command
     command_execution_time    # previous command duration
-    node_version              # node.js version
-    my_pnpm                   # pnpm version (custom)
-    package                   # package.json version
+    background_jobs           # suspended / background jobs
+    my_toolchain              # language + tool versions for this project (custom)
+    package                   # package.json name@version
+    kubecontext               # k8s context, only while typing kubectl/helm/...
+    aws                       # AWS profile, only while typing aws/terraform/...
     nix_shell                 # nix develop indicator
     virtualenv                # python virtual environment
     direnv                    # direnv status
@@ -328,11 +330,25 @@
   typeset -g POWERLEVEL9K_STATUS_ERROR_SIGNAL_FOREGROUND=$red
   typeset -g POWERLEVEL9K_STATUS_VERBOSE_SIGNAME=false
 
-  # ── Node version (only shown in projects with package.json) ──────────────
-  typeset -g POWERLEVEL9K_NODE_VERSION_FOREGROUND=$green
-  typeset -g POWERLEVEL9K_NODE_VERSION_CONTENT_EXPANSION='%{[3m%}${P9K_CONTENT}%{[23m%}'
-  typeset -g POWERLEVEL9K_NODE_VERSION_PROJECT_ONLY=true
-  typeset -g POWERLEVEL9K_NODE_VERSION_VISUAL_IDENTIFIER_EXPANSION=''
+  # ── Background jobs: count of suspended / background jobs ───────────────
+  typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VERBOSE=true
+  typeset -g POWERLEVEL9K_BACKGROUND_JOBS_FOREGROUND=$peach
+  typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VISUAL_IDENTIFIER_EXPANSION=$'\U000f08bb'  # cog-outline
+
+  # ── Kubernetes context: shown only while typing one of these commands ────
+  typeset -g POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND='kubectl|helm|kubens|kubectx|k9s|kustomize|stern|kgp|kl'
+  typeset -g POWERLEVEL9K_KUBECONTEXT_CLASSES=('*' DEFAULT)
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_FOREGROUND=$blue
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_VISUAL_IDENTIFIER_EXPANSION=$'\U000f10fe'  # kubernetes
+  # cluster/namespace, hiding the namespace when it is "default".
+  typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION='%{[3m%}${P9K_KUBECONTEXT_CLOUD_CLUSTER:-${P9K_KUBECONTEXT_NAME}}${${:-/$P9K_KUBECONTEXT_NAMESPACE}:#/default}%{[23m%}'
+
+  # ── AWS profile: shown only while typing one of these commands ───────────
+  typeset -g POWERLEVEL9K_AWS_SHOW_ON_COMMAND='aws|awless|cdk|sam|terraform|terragrunt|pulumi'
+  typeset -g POWERLEVEL9K_AWS_CLASSES=('*' DEFAULT)
+  typeset -g POWERLEVEL9K_AWS_DEFAULT_FOREGROUND=$peach
+  typeset -g POWERLEVEL9K_AWS_DEFAULT_VISUAL_IDENTIFIER_EXPANSION=$'\U000f0e0f'  # aws
+  typeset -g POWERLEVEL9K_AWS_CONTENT_EXPANSION='%{[3m%}${P9K_AWS_PROFILE//\%/%%}${P9K_AWS_REGION:+ ${P9K_AWS_REGION//\%/%%}}%{[23m%}'
 
   # Package (package.json): teal with package icon.
   typeset -g POWERLEVEL9K_PACKAGE_FOREGROUND=$teal
@@ -393,12 +409,132 @@
 
 # ── Custom segments (must be outside the anonymous function) ─────────────
 
-function prompt_my_pnpm() {
-  [[ -f package.json ]] || return
-  (( $+commands[pnpm] )) || return
-  local v="${$(pnpm --version 2>/dev/null):-}"
-  local _ion=$'\e[3m' _ioff=$'\e[23m'
-  [[ -n $v ]] && p10k segment -f '#cba6f7' -i '󰏗' -t "%{${_ion}%}${v}%{${_ioff}%}"
+# ── my_toolchain: languages and tools of the current project ─────────────
+# Walks up from $PWD to the nearest project root (the first folder holding a
+# marker file such as package.json, go.mod or Cargo.toml; it stops at a .git
+# folder, $HOME or /) and shows one icon + version per language or tool found
+# there. Example in a Next.js app:  <node> 22.11.0 · <pnpm> 9.12.1 · <ts> 5.6.3
+#
+# Version commands are slow (swift ~0.5s), so each result is cached per tool
+# and project root, in memory and in ~/.cache/zsh/p10k-toolchain for a day.
+# Delete that file to refresh versions right away.
+
+zmodload zsh/datetime
+typeset -gA _my_tc_cache
+typeset -g _my_tc_file=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/p10k-toolchain
+typeset -gi _my_tc_loaded=0
+
+# Version of one tool, printed on stdout. Runs in the project root, so
+# version managers like mise and asdf pick the project's version.
+function _my_tc_query() {
+  case $1 in
+    node)       node --version | sed 's/^v//' ;;
+    npm|pnpm|yarn|bun) $1 --version ;;
+    deno)       deno --version | awk 'NR==1 {print $2}' ;;
+    typescript) sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' node_modules/typescript/package.json ;;
+    python)     ${VIRTUAL_ENV:+$VIRTUAL_ENV/bin/}python3 --version | awk '{print $2}' ;;
+    go)         go env GOVERSION | sed 's/^go//' ;;
+    rust)       rustc --version | awk '{print $2}' ;;
+    java)       java -version 2>&1 | awk -F'"' 'NR==1 {print $2}' ;;
+    ruby)       ruby -e 'print RUBY_VERSION' ;;
+    php)        php -r 'echo PHP_VERSION;' ;;
+    dart)       dart --version 2>&1 | awk '{print $4}' ;;
+    flutter)    sed -n 's/.*"frameworkVersion": *"\([^"]*\)".*/\1/p' \
+                  "${commands[flutter]:A:h}/cache/flutter.version.json" ;;
+    swift)      swift --version 2>&1 | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1 ;;
+    zig)        zig version ;;
+    elixir)     elixir -e 'IO.write(System.version())' ;;
+    dotnet)     dotnet --version ;;
+    cmake)      cmake --version | awk 'NR==1 {print $3}' ;;
+    terraform)  terraform version | awk 'NR==1 {sub(/^v/, "", $2); print $2}' ;;
+  esac
+}
+
+# Cached version of tool $1 for project root $2, returned in $REPLY.
+function _my_tc_version() {
+  local tool=$1 root=$2 key=$1:$2:$VIRTUAL_ENV ts k v
+  if (( ! _my_tc_loaded )); then
+    _my_tc_loaded=1
+    if [[ -r $_my_tc_file ]]; then
+      while IFS=$'\t' read -r ts k v; do
+        (( EPOCHSECONDS - ts < 86400 )) && _my_tc_cache[$k]=$ts$'\t'$v
+      done < $_my_tc_file
+      # Rewrite the file without expired lines.
+      for k v in ${(kv)_my_tc_cache}; do
+        print -r -- "${v%%$'\t'*}"$'\t'"$k"$'\t'"${v#*$'\t'}"
+      done >| $_my_tc_file
+    fi
+  fi
+  if (( ! ${+_my_tc_cache[$key]} )); then
+    local -A bin=(typescript node python python3 rust rustc)
+    (( $+commands[${bin[$tool]:-$tool}] )) || { REPLY=; return }
+    v=$(builtin cd -q -- $root && _my_tc_query $tool 2>/dev/null)
+    v=${v%%$'\n'*}
+    _my_tc_cache[$key]=$EPOCHSECONDS$'\t'$v
+    [[ -d ${_my_tc_file:h} ]] || mkdir -p ${_my_tc_file:h}
+    print -r -- "$EPOCHSECONDS"$'\t'"$key"$'\t'"$v" >> $_my_tc_file
+  fi
+  REPLY=${_my_tc_cache[$key]#*$'\t'}
+}
+
+function prompt_my_toolchain() {
+  emulate -L zsh -o extended_glob
+  local markers='(package.json|deno.json(|c)|tsconfig.json|go.mod|Cargo.toml|pyproject.toml|requirements*.txt|setup.py|Pipfile|uv.lock|.python-version|Gemfile|.ruby-version|composer.json|pom.xml|build.gradle(|.kts)|pubspec.yaml|Package.swift|build.zig|mix.exs|CMakeLists.txt|*.csproj|*.fsproj|*.sln|*.tf|Dockerfile|(docker-|)compose.y(|a)ml)'
+  local dir=$PWD root=
+  local -a hits
+  while true; do
+    hits=( $dir/${~markers}(N:t) )
+    (( $#hits )) && { root=$dir; break }
+    [[ -e $dir/.git || $dir == $HOME || $dir == / ]] && return
+    dir=${dir:h}
+  done
+
+
+  local it=$'%{\e[3m%}' noit=$'%{\e[23m%}'
+  # tool  marker-pattern  icon  color
+  local -a tools=(
+    node       'package.json'                                $'\U000f0399'  '#a6e3a1'
+    deno       'deno.json(|c)'                               $''      '#cdd6f4'
+    typescript 'tsconfig.json'                               $'\U000f06e6'  '#89b4fa'
+    python     '(pyproject.toml|requirements*.txt|setup.py|Pipfile|uv.lock|.python-version)' $'\U000f0320' '#f9e2af'
+    go         'go.mod'                                      $'\U000f07d3'  '#89dceb'
+    rust       'Cargo.toml'                                  $'\U000f1617'  '#fab387'
+    java       '(pom.xml|build.gradle(|.kts))'               $'\U000f0b37'  '#f38ba8'
+    ruby       '(Gemfile|.ruby-version)'                     $'\U000f0d2d'  '#f38ba8'
+    php        'composer.json'                               $'\U000f031f'  '#b4befe'
+    flutter    'pubspec.yaml'                                $''      '#74c7ec'
+    swift      'Package.swift'                               $'\U000f06e5'  '#fab387'
+    zig        'build.zig'                                   $''      '#f9e2af'
+    elixir     'mix.exs'                                     $''      '#cba6f7'
+    dotnet     '(*.csproj|*.fsproj|*.sln)'                   $''      '#cba6f7'
+    cmake      'CMakeLists.txt'                              $''      '#89b4fa'
+    terraform  '*.tf'                                        $'\U000f1062'  '#cba6f7'
+  )
+  local tool pat icon color
+  for tool pat icon color in $tools; do
+    (( ${hits[(I)$~pat]} )) || continue
+    # pubspec.yaml without a flutter dependency is a plain Dart project.
+    if [[ $tool == flutter ]] && ! grep -q '^ *flutter:' $root/pubspec.yaml 2>/dev/null; then
+      tool=dart icon=$'' color='#89dceb'
+    fi
+    _my_tc_version $tool $root
+    p10k segment -f $color -i $icon -t "${it}${REPLY//\%/%%}${noit}"
+
+    # Package manager right after node, picked from the lockfile.
+    if [[ $tool == node ]]; then
+      local pm=npm pm_icon=$'' pm_color='#f38ba8'
+      if   [[ -e $root/pnpm-lock.yaml ]];               then pm=pnpm pm_icon=$'' pm_color='#fab387'
+      elif [[ -e $root/yarn.lock ]];                    then pm=yarn pm_icon=$'' pm_color='#89dceb'
+      elif [[ -e $root/bun.lock || -e $root/bun.lockb ]]; then pm=bun pm_icon=$'' pm_color='#f5e0dc'
+      fi
+      _my_tc_version $pm $root
+      p10k segment -f $pm_color -i $pm_icon -t "${it}${REPLY//\%/%%}${noit}"
+    fi
+  done
+
+  # Docker: icon only; the version says little about the project.
+  (( ${hits[(I)(Dockerfile|(docker-|)compose.y(|a)ml)]} )) &&
+    p10k segment -f '#89b4fa' -i $'\U000f0868' -t "${it}docker${noit}"
 }
 
 # Tell `p10k configure` which file it should overwrite.
