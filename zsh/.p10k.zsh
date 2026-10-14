@@ -92,10 +92,13 @@
   # Basic style options that define the overall prompt look.
   typeset -g POWERLEVEL9K_BACKGROUND=                            # transparent background
   typeset -g POWERLEVEL9K_{LEFT,RIGHT}_{LEFT,RIGHT}_WHITESPACE=  # no surrounding whitespace
-  typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='%F{#45475a} │ %f'           # space between left segments
+  typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='%F{#45475a}  │  %f'           # space between left segments
   typeset -g POWERLEVEL9K_RIGHT_SUBSEGMENT_SEPARATOR='%F{#45475a}·%f '       # pipe between right segments
   typeset -g POWERLEVEL9K_{LEFT,RIGHT}_SEGMENT_SEPARATOR=        # no end-of-line symbol
   # typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION=         # icons enabled
+  # Extra space after every segment icon. Full-size Nerd Font icons are two cells
+  # wide and need that space to render big instead of colliding with the text.
+  typeset -g POWERLEVEL9K_ICON_PADDING=moderate
 
   # Add an empty line before each prompt except the first. This doesn't emulate the bug
   # in Pure that makes prompt drift down whenever you use the Alt-C binding from fzf or similar.
@@ -133,12 +136,60 @@
   typeset -g POWERLEVEL9K_VIRTUALENV_SHOW_PYTHON_VERSION=false
   typeset -g POWERLEVEL9K_VIRTUALENV_{LEFT,RIGHT}_DELIMITER=
 
-  # Directory: sapphire blue with folder icon, bold anchors, max 3 segments.
+  # ── Directory ─────────────────────────────────────────────────────────────
+  # Path text stays sapphire; the icon in front changes with where you are.
+  # Glyphs are Nerd Font v3 codepoints (https://www.nerdfonts.com/cheat-sheet),
+  # written as escapes so they survive copy/paste and tools that strip them.
   typeset -g POWERLEVEL9K_DIR_FOREGROUND=$sapphire
-  typeset -g POWERLEVEL9K_DIR_VISUAL_IDENTIFIER_EXPANSION='%F{#5dabff}%f'
+  typeset -g POWERLEVEL9K_DIR_SHORTENED_FOREGROUND=$subtext
+  typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=$lavender
+  typeset -g POWERLEVEL9K_DIR_ANCHOR_BOLD=true
   typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique
   typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
-  typeset -g POWERLEVEL9K_DIR_ANCHOR_FOREGROUND=$lavender
+  # Project roots (dirs holding one of these) are anchors: never shortened, bold.
+  typeset -g POWERLEVEL9K_SHORTEN_FOLDER_MARKER='(.git|.hg|.svn|.tool-versions|.node-version|.python-version|Cargo.toml|go.mod|package.json|pubspec.yaml|flake.nix|.shorten_folder_marker)'
+  # Non-writable dirs get the *_NOT_WRITABLE class (styled red with a lock below).
+  typeset -g POWERLEVEL9K_DIR_SHOW_WRITABLE=v3
+
+  # Directory classes: pattern, class, icon, icon color. First match wins, so
+  # specific paths go before general ones.
+  local -a my_dir_classes=(
+    '~/dotfiles(|/*)'                DOTFILES  $''       $mauve      # folder-config
+    '~/dev/personal/dotfiles(|/*)'   DOTFILES  $''       $mauve
+    '~/sec(|/*)'                     SEC       $'\U000f13da'   $red        # shield-bug
+    '~/dev/experiments(|/*)'         LAB       $'\U000f0093'   $pink       # flask
+    '~/dev/opensource(|/*)'          OSS       $''       $green      # folder-github
+    '~/dev/client(|/*)'              CLIENT    $'\U000f024c'   $peach      # folder-account
+    '~/dev/ai(|/*)'                  AI        $'\U000f14de'   $teal       # rocket
+    '~/dev(|/*)'                     DEV       $'\U000f19fc'   $sapphire   # folder-wrench
+    '~/go(|/*)'                      GO        $'\U000f07d3'   $sky        # language-go
+    '~/Downloads(|/*)'               DOWNLOADS $'\U000f024d'   $peach      # folder-download
+    '~/Documents(|/*)'               DOCUMENTS $'\U000f0c82'   $blue       # folder-text
+    '~/Desktop(|/*)'                 DESKTOP   $'\U000f0379'   $teal       # monitor
+    '~/Pictures(|/*)'                PICTURES  $'\U000f024f'   $pink       # folder-image
+    '~/Music(|/*)'                   MUSIC     $'\U000f1359'   $pink       # folder-music
+    '~/Movies(|/*)'                  MOVIES    $'\U000f19fa'   $pink       # folder-play
+    '~/.config(|/*)'                 CONFIG    $'\U000f107f'   $subtext    # folder-cog
+    '~/Library(|/*)'                 LIBRARY   $'\U000f179e'   $grey       # folder-hidden
+    '~'                              HOME      $'\U000f10b5'   $lavender   # folder-home
+    '~/*'                            HOME_SUB  $''       $sapphire   # folder-open
+    '(/private|)/tmp(|/*)'           TMP       $'\U000f1556'   $grey       # delete-clock
+    '/private/var/folders(|/*)'      TMP       $'\U000f1556'   $grey
+    '*'                              DEFAULT   $''       $sapphire
+  )
+  typeset -g POWERLEVEL9K_DIR_CLASSES=()
+  local _pat _cls _ico _col
+  for _pat _cls _ico _col in $my_dir_classes; do
+    POWERLEVEL9K_DIR_CLASSES+=($_pat $_cls '')
+    typeset -g POWERLEVEL9K_DIR_${_cls}_VISUAL_IDENTIFIER_EXPANSION=$_ico
+    typeset -g POWERLEVEL9K_DIR_${_cls}_VISUAL_IDENTIFIER_COLOR=$_col
+    # Same place, but you can't write here: red lock icon and red path.
+    typeset -g POWERLEVEL9K_DIR_${_cls}_NOT_WRITABLE_VISUAL_IDENTIFIER_EXPANSION=$'\U000f0250'  # folder-lock
+    typeset -g POWERLEVEL9K_DIR_${_cls}_NOT_WRITABLE_VISUAL_IDENTIFIER_COLOR=$red
+    typeset -g POWERLEVEL9K_DIR_${_cls}_NOT_WRITABLE_FOREGROUND=$red
+    typeset -g POWERLEVEL9K_DIR_${_cls}_NOT_WRITABLE_ANCHOR_FOREGROUND=$maroon
+  done
+  unset _pat _cls _ico _col
   typeset -g POWERLEVEL9K_DIR_HYPERLINK=true
   typeset -g POWERLEVEL9K_DIR_CONTENT_EXPANSION='%{[3m%}${P9K_CONTENT}%{[23m%}'
 
@@ -160,41 +211,111 @@
   typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_CONTENT_EXPANSION='%{[3m%}${P9K_CONTENT}%{[23m%}'
   typeset -g POWERLEVEL9K_COMMAND_EXECUTION_TIME_VISUAL_IDENTIFIER_EXPANSION=''
 
-  # VCS: distinct colors per state.
-  typeset -g POWERLEVEL9K_VCS_CLEAN_FOREGROUND=$green
-  typeset -g POWERLEVEL9K_VCS_MODIFIED_FOREGROUND=$yellow
-  typeset -g POWERLEVEL9K_VCS_UNTRACKED_FOREGROUND=$peach
-  typeset -g POWERLEVEL9K_VCS_CONFLICTED_FOREGROUND=$red
-  typeset -g POWERLEVEL9K_VCS_LOADING_FOREGROUND=$grey
+  # ── VCS: git status with an icon per state ────────────────────────────────
+  # Example: <github>  <branch> main  <ahead> 2 <stash>1 <added>3 <modified>1 <untracked>4
+  # VCS_STATUS_* comes from gitstatus:
+  # https://github.com/romkatv/gitstatus/blob/master/gitstatus.plugin.zsh
+  function my_git_formatter() {
+    emulate -L zsh
 
-  # Disable async loading indicator to make directories that aren't Git repositories
-  # indistinguishable from large Git repositories without known state.
-  typeset -g POWERLEVEL9K_VCS_LOADING_TEXT=
+    if [[ -n $P9K_CONTENT ]]; then
+      # "loading" or vcs_info output; VCS_STATUS_* isn't available.
+      typeset -g my_git_format=$P9K_CONTENT
+      return
+    fi
 
-  # Don't wait for Git status even for a millisecond, so that prompt always updates
-  # asynchronously when Git state changes.
+    # Catppuccin Mocha; everything goes grey while the status is stale/loading.
+    if (( $1 )); then
+      local meta='%F{#6c7086}' clean='%F{#a6e3a1}' dirty='%F{#f9e2af}'
+      local staged='%F{#a6e3a1}' modified='%F{#f9e2af}' untracked='%F{#fab387}'
+      local conflicted='%F{#f38ba8}' sync='%F{#89dceb}' stash='%F{#b4befe}' tag='%F{#89dceb}'
+      local detached='%F{#fab387}' remote='%F{#a6adc8}'
+    else
+      local meta='%F{#6c7086}' clean=$meta dirty=$meta staged=$meta modified=$meta
+      local untracked=$meta conflicted=$meta sync=$meta stash=$meta tag=$meta
+      local detached=$meta remote=$meta
+    fi
+    local it=$'%{\e[3m%}' noit=$'%{\e[23m%}'
+
+    # Icons (Nerd Font v3).
+    local i_github=$'' i_gitlab=$'' i_bitbucket=$'' i_git=$''
+    local i_branch=$'' i_commit=$'' i_tag=$'\U000f04fc'
+    local i_behind=$'' i_ahead=$'' i_stash=$'' i_action=$'\U000f062d'
+    local i_conflict=$'\U000f0787' i_staged=$'' i_unstaged=$''
+    local i_untracked=$'' i_wip=$'\U000f0238'
+
+    local res
+
+    # Remote host: GitHub / GitLab / Bitbucket / generic git.
+    case $VCS_STATUS_REMOTE_URL in
+      *github*)    res+="${remote}${i_github}  " ;;
+      *gitlab*)    res+="${remote}${i_gitlab}  " ;;
+      *bitbucket*) res+="${remote}${i_bitbucket}  " ;;
+      *)           res+="${remote}${i_git}  " ;;
+    esac
+
+    # Branch name turns yellow once the tree has any change.
+    local branch_color=$clean
+    (( VCS_STATUS_HAS_STAGED || VCS_STATUS_HAS_UNSTAGED || VCS_STATUS_HAS_UNTRACKED || VCS_STATUS_HAS_CONFLICTED )) && branch_color=$dirty
+
+    if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
+      local branch=${(V)VCS_STATUS_LOCAL_BRANCH}
+      (( $#branch > 32 )) && branch[13,-13]="…"
+      res+="${branch_color}${i_branch} ${it}${branch//\%/%%}${noit}"
+    fi
+
+    # Tag: shown next to the branch, or alone when detached on a tag.
+    if [[ -n $VCS_STATUS_TAG ]]; then
+      local t=${(V)VCS_STATUS_TAG}
+      (( $#t > 32 )) && t[13,-13]="…"
+      [[ -n $VCS_STATUS_LOCAL_BRANCH ]] && res+="  "
+      res+="${tag}${i_tag} ${it}${t//\%/%%}${noit}"
+    fi
+
+    # Detached HEAD with no tag: short commit hash.
+    [[ -z $VCS_STATUS_LOCAL_BRANCH && -z $VCS_STATUS_TAG ]] &&
+      res+="${detached}${i_commit} ${it}${VCS_STATUS_COMMIT[1,8]}${noit}"
+
+    # Upstream name, only when it differs from the local branch.
+    [[ -n ${VCS_STATUS_REMOTE_BRANCH:#$VCS_STATUS_LOCAL_BRANCH} ]] &&
+      res+="${meta}:${it}${(V)VCS_STATUS_REMOTE_BRANCH//\%/%%}${noit}"
+
+    # Last commit says "wip".
+    [[ $VCS_STATUS_COMMIT_SUMMARY == (|*[^[:alnum:]])(wip|WIP)(|[^[:alnum:]]*) ]] &&
+      res+="  ${untracked}${i_wip} wip"
+
+    # Behind / ahead of upstream, then of the push remote.
+    (( VCS_STATUS_COMMITS_BEHIND )) && res+="  ${sync}${i_behind} ${VCS_STATUS_COMMITS_BEHIND}"
+    (( VCS_STATUS_COMMITS_AHEAD  )) && res+="  ${sync}${i_ahead} ${VCS_STATUS_COMMITS_AHEAD}"
+    (( VCS_STATUS_PUSH_COMMITS_BEHIND )) && res+="  ${sync}⇠${VCS_STATUS_PUSH_COMMITS_BEHIND}"
+    (( VCS_STATUS_PUSH_COMMITS_AHEAD  )) && res+="  ${sync}⇢${VCS_STATUS_PUSH_COMMITS_AHEAD}"
+
+    (( VCS_STATUS_STASHES ))        && res+="  ${stash}${i_stash} ${VCS_STATUS_STASHES}"
+    # merge / rebase-i 3/20 / cherry-pick ...
+    [[ -n $VCS_STATUS_ACTION ]]     && res+="  ${conflicted}${i_action} ${VCS_STATUS_ACTION}"
+    (( VCS_STATUS_NUM_CONFLICTED )) && res+="  ${conflicted}${i_conflict} ${VCS_STATUS_NUM_CONFLICTED}"
+    (( VCS_STATUS_NUM_STAGED ))     && res+="  ${staged}${i_staged} ${VCS_STATUS_NUM_STAGED}"
+    (( VCS_STATUS_NUM_UNSTAGED ))   && res+="  ${modified}${i_unstaged} ${VCS_STATUS_NUM_UNSTAGED}"
+    (( VCS_STATUS_NUM_UNTRACKED ))  && res+="  ${untracked}${i_untracked} ${VCS_STATUS_NUM_UNTRACKED}"
+    # Unstaged count unknown (huge index or bash.showDirtyState=false).
+    (( VCS_STATUS_HAS_UNSTAGED == -1 )) && res+="  ${modified}─"
+
+    typeset -g my_git_format=$res
+  }
+  functions -M my_git_formatter 2>/dev/null
+
+  typeset -g POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING=true
+  typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='${$((my_git_formatter(1)))+${my_git_format}}'
+  typeset -g POWERLEVEL9K_VCS_LOADING_CONTENT_EXPANSION='${$((my_git_formatter(0)))+${my_git_format}}'
+  # Icons live in the formatter, so no separate segment icon.
+  typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_EXPANSION=
+  # Real counts instead of a single dirty marker.
+  typeset -g POWERLEVEL9K_VCS_{STAGED,UNSTAGED,UNTRACKED,CONFLICTED,COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
+  # Count changes in any repo size; lower this if a giant repo makes the prompt lag.
+  typeset -g POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY=-1
+  typeset -g POWERLEVEL9K_VCS_BACKENDS=(git)
+  # Never block the prompt on git; status fills in asynchronously (grey until then).
   typeset -g POWERLEVEL9K_VCS_MAX_SYNC_LATENCY_SECONDS=0
-
-  # Cyan ahead/behind arrows.
-  typeset -g POWERLEVEL9K_VCS_{INCOMING,OUTGOING}_CHANGESFORMAT_FOREGROUND=$cyan
-  # Don't show remote branch, current tag or stashes.
-  typeset -g POWERLEVEL9K_VCS_GIT_HOOKS=(vcs-detect-changes git-untracked git-aheadbehind)
-  # Don't show the branch icon.
-  typeset -g POWERLEVEL9K_VCS_BRANCH_ICON=' '
-  # When in detached HEAD state, show @commit where branch normally goes.
-  typeset -g POWERLEVEL9K_VCS_COMMIT_ICON='@'
-  # Don't show staged, unstaged, untracked indicators.
-  typeset -g POWERLEVEL9K_VCS_{STAGED,UNSTAGED,UNTRACKED}_ICON=
-  # Show '*' when there are staged, unstaged or untracked files.
-  typeset -g POWERLEVEL9K_VCS_DIRTY_ICON=' ±'
-  # Show '⇣' if local branch is behind remote.
-  typeset -g POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON=' ⇣'
-  # Show '⇡' if local branch is ahead of remote.
-  typeset -g POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON=' ⇡'
-  # Don't show the number of commits next to the ahead/behind arrows.
-  typeset -g POWERLEVEL9K_VCS_{COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=1
-  # Remove space between '⇣' and '⇡' and all trailing spaces.
-  typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='%{[3m%}${${${P9K_CONTENT/⇣* :⇡/⇣⇡}// }//:/ }%{[23m%}'
 
   # ── Status (exit code) ────────────────────────────────────────────────────
   typeset -g POWERLEVEL9K_STATUS_EXTENDED_STATES=true
