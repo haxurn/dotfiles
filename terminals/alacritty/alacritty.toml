@@ -24,7 +24,7 @@ style = "Bold Italic"
 [window]
 padding = { x = 8, y = 8 }
 dynamic_padding = true
-decorations = "None"
+decorations = "Transparent"   # macOS: keep traffic lights, no title bar
 option_as_alt = "Both"          # macOS only, harmless on Linux
 
 [scrolling]
