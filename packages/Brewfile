@@ -14,6 +14,8 @@ brew "ripgrep"
 brew "bat"
 brew "eza"
 brew "zoxide"
+brew "atuin"              # shell history search (zsh Ctrl-R)
+brew "terminal-notifier"  # zsh auto-notify on macOS
 brew "btop"
 brew "lazygit"
 brew "git-delta"

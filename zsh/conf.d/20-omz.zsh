@@ -17,6 +17,7 @@ plugins=(
   docker docker-compose npm golang
   command-not-found extract sudo jsontools web-search
   copypath copyfile dirhistory
+  safe-paste aliases                # paste never auto-runs; `als` lists/searches aliases
   fzf-tab
 )
 
@@ -35,3 +36,8 @@ if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
   fi
   unset _omz_lock_fd
 fi
+
+# oh-my-zsh's lib/key-bindings.zsh runs `bindkey -e`, which undoes zsh-vi-mode
+# (15-vi-mode.zsh). Put the vi insert keymap back as main so it, and every
+# binding made after this point, is active.
+(( $+functions[zvm_init] )) && bindkey -A viins main

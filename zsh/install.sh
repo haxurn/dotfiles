@@ -30,6 +30,17 @@ clone_if_missing https://github.com/zsh-users/zsh-completions.git         "$ZSH_
 clone_if_missing https://github.com/zsh-users/zsh-autosuggestions.git     "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
 clone_if_missing https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 clone_if_missing https://github.com/Aloxaf/fzf-tab.git                    "$ZSH_CUSTOM/plugins/fzf-tab"
+clone_if_missing https://github.com/jeffreytse/zsh-vi-mode.git           "$ZSH_CUSTOM/plugins/zsh-vi-mode"
+clone_if_missing https://github.com/hlissner/zsh-autopair.git            "$ZSH_CUSTOM/plugins/zsh-autopair"
+clone_if_missing https://github.com/MichaelAquilina/zsh-you-should-use.git "$ZSH_CUSTOM/plugins/you-should-use"
+clone_if_missing https://github.com/MichaelAquilina/zsh-auto-notify.git  "$ZSH_CUSTOM/plugins/auto-notify"
+clone_if_missing https://github.com/wfxr/forgit.git                      "$ZSH_CUSTOM/plugins/forgit"
+# zsh-abbr needs its zsh-job-queue submodule
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-abbr" ]]; then
+    log_info "cloning zsh-abbr"
+    run git clone -q --depth=1 --recurse-submodules --shallow-submodules \
+        https://github.com/olets/zsh-abbr.git "$ZSH_CUSTOM/plugins/zsh-abbr"
+fi
 
 # CLI tools (no-ops when already present; setup.sh normally installs these via manifests)
 has fzf    || pkg_install fzf
@@ -38,6 +49,7 @@ has eza    || ensure_eza
 has bat    || { pkg_install bat; ensure_bin_alias batcat bat; }
 has fd     || { pkg_install fd;  ensure_bin_alias fdfind fd; }
 has zoxide || ensure_zoxide
+has atuin  || pkg_install atuin || log_warn "atuin not in package manager; see https://docs.atuin.sh"
 ensure_fzf_git
 
 link_file "$SCRIPT_DIR/.zshrc"    "$HOME/.zshrc"

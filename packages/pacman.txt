@@ -14,6 +14,7 @@ ripgrep
 bat
 eza
 zoxide
+atuin
 btop
 lazygit
 delta              # -> git-delta

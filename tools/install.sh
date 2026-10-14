@@ -22,7 +22,10 @@ link_file "$SCRIPT_DIR/bat/config" "$HOME/.config/bat/config"
 # eza: colors + folder/file icons (EZA_CONFIG_DIR points here, see 00-env.zsh)
 link_file "$SCRIPT_DIR/eza/theme.yml" "$HOME/.config/eza/theme.yml"
 
+# atuin: shell history search (sync off by default)
+link_file "$SCRIPT_DIR/atuin/config.toml" "$HOME/.config/atuin/config.toml"
+
 # gdb: GEF loader (~/.gdbinit). Harmless if gdb / GEF are absent.
 link_file "$SCRIPT_DIR/gdb/gdbinit" "$HOME/.gdbinit"
 
-log_ok "tools configured (lazygit, btop, bat, eza, gdb)"
+log_ok "tools configured (lazygit, btop, bat, eza, atuin, gdb)"

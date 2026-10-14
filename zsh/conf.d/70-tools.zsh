@@ -28,6 +28,11 @@ if (( $+commands[fzf] )); then
     [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
   fi
 fi
+# ── atuin: SQLite history with full-screen fuzzy search (Ctrl-R) ──
+# Loaded after fzf so it takes over Ctrl-R. Up arrow stays history-substring-search.
+# Config: tools/atuin/config.toml. Sync is off unless you run `atuin login`.
+(( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
+
 # ctrl-g ctrl-{f,b,t,r,h,s} git pickers
 [[ -r "$HOME/.local/share/fzf-git.sh/fzf-git.sh" ]] && source "$HOME/.local/share/fzf-git.sh/fzf-git.sh"
 
