@@ -39,3 +39,7 @@ true
 # Google Cloud SDK (brew cask)
 source /opt/homebrew/share/google-cloud-sdk/path.zsh.inc
 source /opt/homebrew/share/google-cloud-sdk/completion.zsh.inc
+export PATH=$PATH:$HOME/.maestro/bin
+
+# LCU CLI
+export PATH="$HOME/.local/share/lcu/current/bin:$PATH"
