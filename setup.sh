@@ -9,6 +9,18 @@ export DOTFILES_DIR
 # shellcheck source=lib/init.sh
 source "$DOTFILES_DIR/lib/init.sh"
 
+# Link everything through a stable ~/dotfiles anchor. Moving the clone then only
+# means re-pointing this one symlink instead of every config link.
+DOTFILES_ANCHOR="$HOME/dotfiles"
+if [[ "$DOTFILES_DIR" != "$DOTFILES_ANCHOR" ]]; then
+    if [[ -e "$DOTFILES_ANCHOR" && ! -L "$DOTFILES_ANCHOR" ]]; then
+        die "$DOTFILES_ANCHOR exists and is not a symlink; move it or clone there"
+    fi
+    run ln -sfn "$DOTFILES_DIR" "$DOTFILES_ANCHOR"
+    log_ok "$DOTFILES_ANCHOR -> $DOTFILES_DIR"
+    [[ "${DRY_RUN:-0}" == 1 ]] || DOTFILES_DIR="$DOTFILES_ANCHOR"
+fi
+
 SEL_TMUX=0 SEL_ZSH=0 SEL_NVIM=0 SEL_GIT=0 SEL_TERMINALS=0 SEL_TOOLS=0 SEL_VSCODE=0
 SEL_DEVTOOLS=0   # opt-in only: --all does not select it (keeps docker-smoke lean)
 SEL_SECURITY=0   # opt-in only, same reasoning
