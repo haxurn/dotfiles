@@ -1,6 +1,6 @@
 -- mappings, including plugins
--- terminal / lazygit / btop maps live in lua/plugins/fterm.lua
--- LSP maps are buffer-local in lua/plugins/lsp.lua; format in lua/plugins/conform.lua
+-- plugin-owned keys live in each spec's `keys` table (lua/plugins/<group>/*.lua)
+-- LSP maps are buffer-local in lua/plugins/lsp/lsp.lua; format in lua/plugins/coding/conform.lua
 
 local function map(m, k, v, desc)
 	vim.keymap.set(m, k, v, { noremap = true, silent = true, desc = desc })
@@ -55,13 +55,13 @@ map("n", "<leader>Fg", fzf("git_status"), "git status")
 map("n", "<leader>Fs", fzf("lsp_document_symbols"), "document symbols")
 map("n", "<leader>Fk", fzf("keymaps"), "keymaps")
 map("n", "<leader>Fd", fzf("diagnostics_document"), "diagnostics")
+map("n", "<leader>Fp", fzf("colorschemes"), "colorschemes")
+map("n", "<leader>F?", fzf("helptags"), "help tags")
 
 -- misc
 map("n", "<leader>s", ":%s//g<Left><Left>") --replace all
-map("n", "<leader>t", ":NvimTreeToggle<CR>") --open file explorer
 map("n", "<leader>p", function() _G.switch_theme() end) --cycle themes
-map("n", "<leader>P", ":PlugInstall<CR>") --vim-plug
-map("n", "<leader>u", ":UndotreeToggle<CR>") --undo history
+map("n", "<leader>P", "<cmd>Lazy<CR>") --plugin manager
 map("n", "<leader>w", ":w<CR>") --write but one less key
 map("n", "<leader>d", ":w ") --duplicate to new name
 map("n", "<leader>x", "<cmd>!chmod +x %<CR>") --make a file executable
@@ -69,7 +69,6 @@ map("n", "<leader>mv", ":!mv % ") --move a file to a new dir
 map("n", "<leader>R", ":so %<CR>") --reload neovim config
 map("v", "<leader>i", "=gv") --auto indent
 map("n", "<leader>W", ":set wrap!<CR>") --toggle wrap
-map("n", "<leader>l", ":Twilight<CR>") --surrounding dim
 -- `gx` (builtin, vim.ui.open) opens the URL/path under cursor on both macOS and Linux
 
 -- quality of life
@@ -100,7 +99,3 @@ map("n", "<leader>nn", function() --toggle relative vs absolute line numbers
 		vim.wo.relativenumber = true
 	end
 end)
-
--- undotree
-vim.g.undotree_SetFocusWhenToggle = 1
-vim.g.undotree_WindowLayout = 2

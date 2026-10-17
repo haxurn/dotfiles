@@ -1,4 +1,4 @@
-# nvim cheatsheet (glow-up)
+# nvim cheatsheet
 
 **Leader = `Space`.** Press `Space` and wait → which-key shows everything.
 First launch after the upgrade: mason downloads language servers in the background
@@ -86,7 +86,7 @@ Inside fzf: `Ctrl-f/b` page, `F4` toggle preview, `Shift-up/down` scroll preview
 `Ctrl-h/j/k/l` move · `F5/F6` height ± · `F7/F8` width ±
 
 ## File tree (nvim-tree)
-`<leader>t` toggle. Inside: `a` create (`/`=dir), `d` delete, `r` rename, `x`/`c`/`p` cut/copy/paste, `?` help.
+`<leader>t` toggle · `<leader>E` reveal current file. Inside: `a` create (`/`=dir), `d` delete, `r` rename, `x`/`c`/`p` cut/copy/paste, `?` help.
 
 ## Terminal
 `<leader>z` float term · `Alt-z` toggle it (works from inside too) · `<leader>hg` lazygit · `<leader>H` btop · `Ctrl-\ Ctrl-\` terminal → normal mode (Esc is left for TUIs)
@@ -119,28 +119,37 @@ Inside fzf: `Ctrl-f/b` page, `F4` toggle preview, `Shift-up/down` scroll preview
 | `<leader>W` | toggle wrap · `<leader>nn` toggle rel numbers · `<leader>l` twilight dim |
 
 ## Theme / files / misc
-`<leader>p` cycle theme · `<leader>P` PlugInstall · `<leader>R` reload config
+`<leader>p` cycle theme · `<leader>Fp` pick colorscheme · `<leader>P` plugin manager (`:Lazy`) · `<leader>R` source current file
 `<leader>d` duplicate file · `<leader>mv` move file · `<leader>x` chmod +x · `gx` open URL/path under cursor · `<leader>u` undotree
 
 ## CSV (decisive)
 `<leader>csa` / `<leader>csA` align / clear · `[,` / `],` prev / next column
 
 ## Maintenance commands
-`:Mason` server installer UI · `:checkhealth` diagnose · `:PlugUpdate` update plugins
-`:Trouble` lists · `:Lazy`?(no — vim-plug: `:PlugStatus`)
+`:Lazy` plugins (`U` update, `S` sync, `P` profile) · `:Mason` server installer UI · `:checkhealth` diagnose
+After `:Lazy update`, commit `nvim/lazy-lock.json` so other machines get the same versions.
 
 ---
 
-## Text objects & motions (treesitter-textobjects)
+## Text objects & motions (mini.ai + treesitter-textobjects)
 | Key | Action |
 |---|---|
 | `af` / `if` | around / inside function |
 | `ac` / `ic` | around / inside class |
 | `aa` / `ia` | around / inside argument |
+| `ao` / `io` | around / inside block, loop or conditional |
+| `au` / `iu` | around / inside function call |
+| `at` / `it` | around / inside html tag |
+| `ae` / `ie` | camelCase / snake_case word segment |
+| `ag` / `ig` | whole buffer |
+| `aq` / `iq`, `ab` / `ib` | any quote, any bracket |
 | `]f` / `[f` | next / prev function start |
 | `]c` / `[c` | next / prev class start |
+| `]a` / `[a` | next / prev argument |
+| `[k` | jump up to the sticky context line |
 
 Combine with operators: `dif` delete function body, `yaa` yank argument, `vac` select class.
+`an`/`in` + object = next one (e.g. `cinq` change inside next quote).
 
 ## fzf extras
 | Key | Action |
@@ -152,6 +161,92 @@ Combine with operators: `dif` delete function body, `yaa` yank argument, `vac` s
 | `<leader>Fk` | keymaps |
 | `<leader>Fd` | diagnostics |
 | `<leader>Fr` | resume last picker |
+| `<leader>Ft` | TODO comments |
+| `<leader>Fy` | registers / yank history |
+| `<leader>F?` | help tags |
 
 ## Folds
 `zc` / `zo` / `za` close / open / toggle (treesitter folds, all open on load) · `zM` / `zR` close / open all.
+
+---
+
+## UI
+| Key | Action |
+|---|---|
+| `<leader>;` | pick a breadcrumb in the top winbar (dropbar) |
+| `]]` / `[[` | next / prev reference of word under cursor |
+| `<leader>Z` | zen mode |
+| `<leader>Nl` / `<leader>Nh` / `<leader>Nd` | last message / message history / dismiss popups |
+| `<leader>O` + `s w d h T c D f` | toggle spell, wrap, diagnostics, inlay hints, treesitter, conceal, dim, format-on-save |
+| `<leader>?` | keymaps for this buffer only |
+
+The cmdline (`:`) and search pop up in the middle of the screen (noice). Messages appear top right.
+
+## Files: oil + harpoon
+| Key | Action |
+|---|---|
+| `-` | oil: open parent dir as a buffer. Edit lines to rename / move / delete, `:w` applies |
+| `<leader>-` | oil in a float |
+| `<leader>aa` | harpoon: pin current file |
+| `<leader>al` | harpoon menu (reorder / delete by editing) |
+| `<leader>1` … `<leader>5` | jump to pinned file N |
+| `<leader>an` / `<leader>ap` | next / prev pinned file |
+| `<leader>cR` | rename current file (LSP updates imports) |
+
+## Sessions (persistence)
+Saved automatically per directory and git branch when you quit.
+`<leader>Ss` restore this dir · `<leader>Sl` restore last · `<leader>SS` pick · `<leader>Sd` don't save this one
+
+## Multicursor
+| Key | Action |
+|---|---|
+| `<leader>mn` / `<leader>mN` | add cursor at next / prev match of word (or selection) |
+| `<leader>ms` | skip next match |
+| `<leader>mA` | cursor on every match |
+| `<leader>mj` / `<leader>mk` | add cursor below / above |
+| `Ctrl-click` | add / remove cursor |
+| `Left` / `Right` | cycle main cursor · `<leader>mx` delete it |
+| `Esc` | back to one cursor |
+
+## Yank ring (yanky)
+After `p`/`P`: `Ctrl-p` / `Ctrl-n` swap in older / newer yanks. `]p` / `[p` put on line below / above.
+
+## Refactoring
+Operators: follow with a motion, or use on a visual selection.
+`<leader>rf` extract function · `<leader>rF` … to file · `<leader>rv` extract variable · `<leader>ri` inline variable · `<leader>rI` inline function · `<leader>rs` pick
+`<leader>rp` debug-print word/selection · `<leader>rl` print location · `<leader>rc` remove debug prints
+
+## Git: neogit, diffview, conflicts
+| Key | Action |
+|---|---|
+| `<leader>hn` | neogit status (`s` stage, `u` unstage, `c c` commit, `P p` push, `?` help) |
+| `<leader>hc` / `<leader>hl` | neogit commit / log |
+| `<leader>hv` / `<leader>hV` | diffview open / close (all changes side by side) |
+| `<leader>hf` / `<leader>hF` | history of this file / of the repo |
+| `<leader>hm` | diff branch vs default branch (review a PR locally) |
+| `co` / `ct` / `cb` / `c0` | conflict: take ours / theirs / both / none |
+| `]x` / `[x` | next / prev conflict · `<leader>hx` all conflicts to quickfix |
+
+## Debugger (nvim-dap)
+Adapters install via mason: python (debugpy), rust/c/c++ (codelldb), go (delve), js/ts.
+| Key | Action |
+|---|---|
+| `F9` / `<leader>Dc` | start / continue |
+| `F10` / `F11` / `F12` | step over / into / out |
+| `<leader>Db` | toggle breakpoint · `<leader>DB` conditional · `<leader>Dl` log point |
+| `<leader>DC` | run to cursor |
+| `<leader>De` | evaluate expression (works on selection) |
+| `<leader>Du` | toggle debug UI (opens itself when a session starts) |
+| `<leader>DR` / `<leader>Dr` / `<leader>Dt` | REPL / restart / terminate |
+
+## Tests (neotest)
+pytest, go test, cargo test, vitest, jest.
+| Key | Action |
+|---|---|
+| `<leader>jt` | run nearest test |
+| `<leader>jf` / `<leader>jA` / `<leader>jl` | run file / all / last |
+| `<leader>jd` | debug nearest test (dap) |
+| `<leader>js` | summary tree |
+| `<leader>jo` / `<leader>jO` | output / output panel |
+| `<leader>jw` | watch file (rerun on save) |
+| `]j` / `[j` | next / prev failed test |

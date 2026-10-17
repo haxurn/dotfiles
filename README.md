@@ -97,7 +97,7 @@ dotfiles/
 │   ├── functions/           # autoloaded: mkcd fkill gcof ports msfs y
 │   └── zshrc.local.example  # copied to ~/.zshrc.local once; machine-specific stuff lives there
 ├── tmux/                    # tmux.conf + scripts/sessionizer.sh
-├── nvim/                    # vim-plug config: LSP, blink.cmp, treesitter, conform, fzf-lua, ...
+├── nvim/                    # lazy.nvim config: LSP, blink.cmp, treesitter, DAP, neotest, neogit, ...
 ├── git/                     # gitconfig (delta, aliases), ignore; identity in ~/.gitconfig.local
 ├── terminals/               # kitty, ghostty, alacritty (same font + palette)
 ├── tools/                   # lazygit, btop, bat

@@ -62,14 +62,6 @@ au("BufReadPost", {
 	end,
 })
 
--- startup time for the dashboard footer
-au("VimEnter", {
-	callback = function()
-		local startuptime = vim.fn.reltimefloat(vim.fn.reltime(vim.g.start_time))
-		vim.g.startup_time_ms = string.format("%.2f ms", startuptime * 1000)
-	end,
-})
-
 -- relative numbers only in the active window / normal mode
 au({ "BufEnter", "FocusGained", "InsertLeave", "CmdlineLeave", "WinEnter" }, {
 	callback = function()

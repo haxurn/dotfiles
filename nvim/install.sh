@@ -18,10 +18,10 @@ has npm   || pkg_install node
 link_dir "$SCRIPT_DIR" "$NVIM_DIR"
 
 if [[ "${DRY_RUN:-0}" != 1 ]] && confirm "Install neovim plugins headless now?" y; then
-    if nvim --headless "+PlugInstall --sync" +qa >/dev/null 2>&1; then
-        log_ok "plugins installed"
+    if nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
+        log_ok "plugins installed (pinned by lazy-lock.json)"
     else
-        log_warn "headless PlugInstall failed; plugins will install on first launch"
+        log_warn "headless plugin install failed; lazy.nvim installs them on first launch"
     fi
 fi
 
