@@ -29,5 +29,6 @@ require("config.mappings")
 require("config.autocmd")
 require("config.theme")
 require("config.lazy")
+require("config.cheatsheet") -- :Cheatsheet, :Tip, <leader>k
 
 load_theme()

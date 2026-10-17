@@ -90,6 +90,7 @@ return {
 			btn("c", i.gear, "Config", "<cmd>e ~/.config/nvim/<CR>"),
 			btn("p", i.plugin, "Plugins", "<cmd>Lazy<CR>"),
 			btn("m", i.lsp, "Mason", "<cmd>Mason<CR>"),
+			btn("?", i.keyboard, "Cheatsheet", "<cmd>Cheatsheet<CR>"),
 			btn("q", i.quit, "Quit", "<cmd>qa<CR>"),
 		}
 		dashboard.section.buttons.opts.hl = "Keyword"
@@ -97,7 +98,11 @@ return {
 		-- ── footer ─────────────────────────────────────────────────────────
 		dashboard.section.footer.val = function()
 			local stats = require("lazy").stats()
-			return ("%s %d/%d plugins in %.1f ms"):format(i.bolt, stats.loaded, stats.count, stats.startuptime)
+			return {
+				("%s %d/%d plugins in %.1f ms"):format(i.bolt, stats.loaded, stats.count, stats.startuptime),
+				"",
+				"tip: " .. require("config.cheatsheet").random_tip(),
+			}
 		end
 		dashboard.section.footer.opts.hl = "Comment"
 

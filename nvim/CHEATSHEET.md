@@ -1,6 +1,10 @@
 # nvim cheatsheet
 
 **Leader = `Space`.** Press `Space` and wait → which-key shows everything.
+**Inside nvim:** `Space k` opens the cheatsheet (`Space K` jumps to the scenarios tab, or `:Cheatsheet keys|scenarios|grammar`).
+Tabs: `1` every key with when-to-use notes · `2` step-by-step recipes for real tasks · `3` how vim commands combine.
+Inside: `Tab`/`Shift-Tab` section, `/` search, `s` fuzzy-find anything, `t` tip, `q` close. `:Tip` shows a random tip.
+Content lives in `lua/config/cheatsheet/` (keys.lua, scenarios.lua, grammar.lua, tips.lua).
 First launch after the upgrade: mason downloads language servers in the background
 (watch `:Mason`). Restart once they finish for full error-checking.
 
