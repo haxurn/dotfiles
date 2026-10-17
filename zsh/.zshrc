@@ -18,7 +18,11 @@ POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 DOTFILES_ZSH="${${(%):-%x}:A:h}"          # resolves the symlink -> <repo>/zsh
 fpath=("$DOTFILES_ZSH/functions" $fpath)
 autoload -Uz "$DOTFILES_ZSH"/functions/*(N.:t)
-for _f in "$DOTFILES_ZSH"/conf.d/*.zsh(N); do source "$_f"; done; unset _f
+# Compile each module to .zwc when it changed; `source` picks the newer .zwc.
+for _f in "$DOTFILES_ZSH"/conf.d/*.zsh(N); do
+  [[ "$_f.zwc" -nt "$_f" ]] || zcompile "$_f" 2>/dev/null
+  source "$_f"
+done; unset _f
 
 # ── Machine-specific (untracked) ────────────────────────────────────────
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

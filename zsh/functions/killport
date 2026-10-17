@@ -1,0 +1,7 @@
+# killport <port> [signal]: kill whatever listens on a TCP port (default SIGTERM)
+(( $# )) || { print -u2 "usage: killport <port> [signal]"; return 1 }
+local -a pids
+pids=(${(f)"$(lsof -ti tcp:$1 -sTCP:LISTEN 2>/dev/null)"})
+(( $#pids )) || { print "nothing listening on :$1"; return 1 }
+ps -o pid=,comm= -p ${(j:,:)pids}
+kill -"${2:-15}" $pids && print "sent SIG${2:-TERM} to ${pids}"

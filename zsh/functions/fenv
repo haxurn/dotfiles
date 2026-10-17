@@ -1,0 +1,5 @@
+# fenv: browse environment variables; Enter copies NAME=value to the clipboard
+local sel
+sel=$(env | sort | fzf --prompt='  env ❯ ' --delimiter = --with-nth 1 \
+  --preview 'echo {2..} | tr ":" "\n"' --preview-window 'down,40%,wrap') || return
+print -rn -- "$sel" | clipcopy && print "copied: ${sel%%=*}"

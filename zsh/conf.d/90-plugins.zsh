@@ -6,6 +6,7 @@ _src_first "$ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" \
            /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+bindkey '^ ' autosuggest-accept             # Ctrl-Space: take the grey suggestion
 
 # Forge registers its own highlighter before z-s-h loads; keep the main parser enabled too.
 typeset -ga ZSH_HIGHLIGHT_HIGHLIGHTERS

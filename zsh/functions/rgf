@@ -1,0 +1,19 @@
+# rgf [query]: live ripgrep + fzf. Type to search, Enter opens nvim at the line, Tab-marked hits go to quickfix
+(( $+commands[rg] )) || { print -u2 "ripgrep (rg) not installed"; return 1 }
+local rg_cmd='rg --column --line-number --no-heading --color=always --smart-case --hidden --glob=!.git'
+local sel
+sel=$(FZF_DEFAULT_COMMAND="$rg_cmd ${(q)*} || true" fzf --ansi --disabled --multi \
+  --query "$*" --prompt='  rg ❯ ' \
+  --bind "change:reload:sleep 0.1; $rg_cmd {q} || true" \
+  --delimiter : \
+  --preview 'bat --color=always --style=numbers --highlight-line {2} {1}' \
+  --preview-window 'right,55%,+{2}+3/3,~3' \
+  --header 'Enter: open  Tab: mark several (opens quickfix)') || return
+[[ -z $sel ]] && return
+if (( ${#${(f)sel}} > 1 )); then
+  ${EDITOR:-nvim} -q <(print -r -- "$sel" | sed 's/\x1b\[[0-9;]*m//g') +copen
+else
+  local f=${${sel%%:*}//$'\e'\[[0-9;]#m/}
+  local l=${${(s.:.)sel}[2]}
+  ${EDITOR:-nvim} "+${l:-1}" -- "$f"
+fi

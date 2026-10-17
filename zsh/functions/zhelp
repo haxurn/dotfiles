@@ -1,0 +1,53 @@
+# zhelp [query]: fuzzy cheatsheet of your keybinds, functions, abbreviations and aliases. Enter puts the pick on the prompt
+local fdir=${DOTFILES_ZSH:-$HOME/dotfiles/zsh}/functions
+local -a rows
+local f line name
+
+# Keybinds (hand-written: zsh cannot describe its own widgets)
+rows+=(
+  "key|Ctrl-r|atuin: full-screen fuzzy history search"
+  "key|Up / Down|history search for what you already typed"
+  "key|Ctrl-t|fzf: insert file path(s)"
+  "key|Alt-c|fzf: cd into a subfolder"
+  "key|Tab|fzf-tab completion with preview (< > switch groups)"
+  "key|Ctrl-Space|accept the grey autosuggestion"
+  "key|Alt-.|insert last argument of the previous command"
+  "key|Alt-s|prefix the line with sudo (Esc Esc too)"
+  "key|Ctrl-o|copy the current line to the clipboard"
+  "key|Ctrl-z|empty line: fg the suspended job; typed line: park it, fg, restore"
+  "key|Esc|vi normal mode (vv opens the line in nvim)"
+  "key|Ctrl-g Ctrl-f/b/t/r/h/s|fzf-git: files, branches, tags, remotes, hashes, stashes"
+  "key|Alt-Left / Alt-Right|jump word"
+  "key|Ctrl-Backspace|delete word"
+)
+# Functions: first comment line of each file in zsh/functions
+for f in $fdir/*(N.); do
+  IFS= read -r line < $f
+  line=${line#\# }
+  rows+=("fn|${line%%:*}|${line#*: }")
+done
+# Abbreviations (expand on space)
+if (( $+functions[abbr] )); then
+  for line in ${(f)"$(abbr list 2>/dev/null)"}; do
+    name=${line%%=*}
+    rows+=("abbr|${(Q)name}|${(Q)${line#*=}}")
+  done
+fi
+# Aliases
+for name in ${(ko)aliases}; do
+  rows+=("alias|$name|${aliases[$name]}")
+done
+
+local sel kind desc
+sel=$(printf '%s\n' "${rows[@]}" \
+  | awk -F'|' '{ c = ($1=="key")?"33":($1=="fn")?"32":($1=="abbr")?"36":"35";
+                 printf "\033[%sm%-5s\033[0m\t%-26s\t%s\n", c, $1, $2, $3 }' \
+  | fzf --ansi --delimiter '\t' --query "$*" --prompt='  zsh help ❯ ' --no-sort --tiebreak=begin \
+      --header 'key = keybind · fn = function · abbr = expands on space · alias' \
+      --preview "f=$fdir/\$(echo {2}); [ -f \"\$f\" ] && bat --color=always -l zsh --style=plain \"\$f\" || echo {3..}" \
+      --preview-window 'down,35%,wrap') || return
+IFS=$'\t' read -r kind name desc <<< "${sel//$'\e'\[[0-9;]#m/}"
+kind=${kind// /}; name=${name%%[[:space:]]#}
+# Keybinds cannot be typed; just show the line again
+[[ $kind == key ]] && { print -r -- "$name: $desc"; return }
+print -z -- "$name "

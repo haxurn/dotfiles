@@ -19,10 +19,11 @@ export FZF_ALT_C_OPTS="--preview 'eza --icons --tree --level=2 {}'"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window up:3:hidden:wrap --bind 'ctrl-/:toggle-preview'"
 export FZF_TMUX_OPTS='-p 80%,70%'
 
-# key bindings + completion: fzf >= 0.48 has --zsh; apt's 0.44 ships example files
+# key bindings + completion: fzf >= 0.48 has --zsh; apt's 0.44 ships example files.
+# _cached_eval (01-cache.zsh) fails on fzf < 0.48, which falls through to those files.
 if (( $+commands[fzf] )); then
-  if fzf --zsh >/dev/null 2>&1; then
-    source <(fzf --zsh)
+  if _cached_eval fzf fzf --zsh; then
+    :
   elif [[ -r /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
     source /usr/share/doc/fzf/examples/key-bindings.zsh
     [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
@@ -31,7 +32,7 @@ fi
 # ── atuin: SQLite history with full-screen fuzzy search (Ctrl-R) ──
 # Loaded after fzf so it takes over Ctrl-R. Up arrow stays history-substring-search.
 # Config: tools/atuin/config.toml. Sync is off unless you run `atuin login`.
-(( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
+_cached_eval atuin atuin init zsh --disable-up-arrow
 
 # ctrl-g ctrl-{f,b,t,r,h,s} git pickers
 [[ -r "$HOME/.local/share/fzf-git.sh/fzf-git.sh" ]] && source "$HOME/.local/share/fzf-git.sh/fzf-git.sh"
@@ -44,10 +45,10 @@ fi
 
 # ── zoxide (smarter cd) ──
 export _ZO_DOCTOR=0           # silences the p10k instant-prompt false positive
-(( $+commands[zoxide] )) && eval "$(zoxide init zsh --cmd cd)"
+_cached_eval zoxide zoxide init zsh --cmd cd
 
 # ── direnv ──
-(( $+commands[direnv] )) && eval "$(direnv hook zsh)"
+_cached_eval direnv direnv hook zsh
 
 # ── runtimes ──
 [[ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]] && . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
@@ -55,7 +56,7 @@ export _ZO_DOCTOR=0           # silences the p10k instant-prompt false positive
 # so the two never both hook the node shim.
 FNM_PATH="$HOME/.local/share/fnm"
 if (( $+commands[mise] )); then
-  eval "$(mise activate zsh)"
+  eval "$(mise activate zsh)"          # not cached: output embeds the current PATH
 elif [[ -d "$FNM_PATH" ]]; then
   path=("$FNM_PATH" $path)
   eval "$(fnm env --shell zsh --use-on-cd --version-file-strategy=recursive)"

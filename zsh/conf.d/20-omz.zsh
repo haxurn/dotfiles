@@ -6,6 +6,9 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
 mkdir -p "${ZSH_COMPDUMP:h}"
 DISABLE_AUTO_UPDATE=true
 DISABLE_MAGIC_FUNCTIONS=true                   # faster paste
+# Skip compaudit (the insecure-dir scan, ~13ms each start). Single-user machine:
+# nobody else can write to the completion dirs. Remove on shared machines.
+ZSH_DISABLE_COMPFIX=true
 
 # Extra completion sources (must precede compinit)
 [[ -d "$ZSH_CUSTOM/plugins/zsh-completions/src" ]] && fpath=("$ZSH_CUSTOM/plugins/zsh-completions/src" $fpath)

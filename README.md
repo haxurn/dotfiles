@@ -94,7 +94,7 @@ dotfiles/
 ├── zsh/
 │   ├── .zshrc               # ~25 lines; sources conf.d/ + ~/.zshrc.local
 │   ├── conf.d/NN-*.zsh      # env, tmux, omz, options, completion, keybinds, aliases, tools, integrations, plugins
-│   ├── functions/           # autoloaded: mkcd fkill gcof ports msfs y
+│   ├── functions/           # autoloaded: mkcd fkill gcof ports msfs y rgf fe fenv fman cheat killport zbench zhelp
 │   └── zshrc.local.example  # copied to ~/.zshrc.local once; machine-specific stuff lives there
 ├── tmux/                    # tmux.conf + scripts/sessionizer.sh
 ├── nvim/                    # lazy.nvim config: LSP, blink.cmp, treesitter, DAP, neotest, neogit, ...
@@ -133,7 +133,16 @@ Both are untracked (`*.local` in `.gitignore`).
 | `Tab` | fzf-tab completion with previews |
 | `Up` / `Down` | history substring search |
 | `Alt-←` / `Alt-→` | word navigation |
+| `Ctrl-Space` | accept autosuggestion |
+| `Alt-.` · `Alt-s` · `Ctrl-o` | last argument · prefix sudo · copy line to clipboard |
+| `Ctrl-z` | empty line: `fg` the suspended job (vim Ctrl-z, then Ctrl-z back) |
+| `zhelp` | fuzzy cheatsheet of all keys, functions, abbreviations, aliases |
 | `mkcd` `fkill` `gcof` `ports` `ts` `y` | functions: mkdir+cd, fzf kill, fzf branch, listening ports, tmux sessionizer, yazi |
+| `rgf` `fe` `fenv` `fman` | live ripgrep → nvim at line · fuzzy edit · env vars · man pages |
+| `cheat <cmd>` `killport <port>` | cht.sh examples · kill what listens on a port |
+| `zbench` · `zcache-clear` | startup time · rebuild cached tool init (zoxide, atuin, fzf, direnv) |
+
+`cd` prints the folder (60 entries max); `AUTO_LS=0` in `~/.zshrc.local` turns it off.
 
 ### tmux (prefix `Ctrl-a`)
 | Key | Action |
@@ -144,9 +153,18 @@ Both are untracked (`*.local` in `.gitignore`).
 | `Alt-\`` | toggle floating scratch session |
 | `g` / `b` | lazygit / btop popup |
 | `f` / `s` | sessionizer (projects) / session picker |
+| `F` · `x` | hint-copy paths/URLs/hashes on screen (tmux-fingers) · fuzzy-pick any text in pane (extrakto) |
+| `e` · `Alt-s` | pane history in nvim · save it to `~/.local/share/tmux/scrollback/` |
+| `Alt-1..9` (no prefix) | jump to window |
+| `<` / `>` · `!` · `@` | swap window left/right · break pane to window · join pane from another window |
+| `?` | every binding with a description |
 | `Shift-←/→` · `Tab` | prev/next window · last window |
 | `v` `y` (copy mode) | select / yank to system clipboard (tmux-yank) |
 | `r` | reload config |
+
+New sessionizer sessions open with windows `edit` (nvim), `shell`, `git` (lazygit). A repo can
+ship its own `.tmux-layout` script (args: session name, folder; it must create the session).
+It runs only after `ts --trust <dir>`. `SESSIONIZER_LAYOUT=0` gives a plain session.
 
 ### neovim (leader `Space`)
 Full reference in [`nvim/CHEATSHEET.md`](nvim/CHEATSHEET.md), workflows in [`nvim/WORKFLOW.md`](nvim/WORKFLOW.md).

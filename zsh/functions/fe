@@ -1,0 +1,5 @@
+# fe [query]: fuzzy-pick files (Tab for many) and open them in $EDITOR
+local -a files
+files=("${(@f)$(fzf --multi --query "$*" --select-1 --exit-0 \
+  --preview 'bat --color=always --style=numbers --line-range=:200 {}')}") || return
+[[ -n ${files[1]} ]] && ${EDITOR:-nvim} -- "${files[@]}"

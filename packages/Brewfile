@@ -1,6 +1,7 @@
 # packages/Brewfile -- CLI toolchain for macOS.  brew bundle --file=packages/Brewfile
 brew "zsh"
 brew "tmux"
+brew "tmux-fingers"     # tmux plugin binary: prefix+F hint copy
 brew "git"
 brew "gh"
 brew "curl"

@@ -1,0 +1,5 @@
+# cheat <cmd> [topic...]: quick examples from cht.sh, e.g. `cheat tar`, `cheat go read file`
+(( $# )) || { print -u2 "usage: cheat <cmd> [topic...]"; return 1 }
+local cmd=$1; shift
+local topic=${(j:+:)@}
+curl -fsS "https://cht.sh/${cmd}${topic:+/$topic}?style=gruvbox-dark" | less -R

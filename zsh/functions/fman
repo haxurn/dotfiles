@@ -1,0 +1,6 @@
+# fman [query]: fuzzy-search man pages with a preview; Enter opens the page
+local sel
+sel=$(man -k . 2>/dev/null | fzf --query "$*" --prompt='  man ❯ ' \
+  --preview 'echo {} | awk "{print \$1}" | sed "s/(.*//;s/,.*//" | xargs man 2>/dev/null | col -bx | bat -l man -p --color=always' \
+  --preview-window 'right,60%') || return
+man "$(print -r -- "$sel" | awk '{print $1}' | sed 's/(.*//;s/,.*//')"

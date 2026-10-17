@@ -1,0 +1,10 @@
+# zbench [runs]: measure interactive zsh startup time (default 10 runs), tmux auto-start off
+zmodload zsh/datetime
+local n=${1:-10} i t0 total=0
+for i in {1..$n}; do
+  t0=$EPOCHREALTIME
+  DOTFILES_NO_TMUX=1 zsh -i -c exit >/dev/null 2>&1
+  (( total += EPOCHREALTIME - t0 ))
+done
+printf 'zsh startup: %.0f ms avg over %d runs\n' $(( total / n * 1000 )) $n
+print 'profile: ZPROF=1 zsh -i -c exit | head -20'
