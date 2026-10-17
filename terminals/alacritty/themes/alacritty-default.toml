@@ -2,7 +2,7 @@
 # (and every Alacritty version) renders the same colors.
 [colors.primary]
 background = "#181818"
-foreground = "#d8d8d8"
+foreground = "#b8bcc2"
 dim_foreground = "#828482"
 
 [colors.cursor]

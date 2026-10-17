@@ -1,6 +1,6 @@
 # Alacritty's built-in palette, replicated for ghostty (~/.config/ghostty/themes/alacritty-default)
 background = #181818
-foreground = #d8d8d8
+foreground = #b8bcc2
 cursor-color = #d8d8d8
 cursor-text = #181818
 selection-invert-fg-bg = true
